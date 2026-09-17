@@ -90,6 +90,35 @@ export const directoratRepository = {
     return (await db.query("DELETE FROM devisi WHERE id=$1 RETURNING id", [id])).rows[0];
   },
 
+  // Legacy Devisi compatibility
+  async getLegacyDevisi() {
+    return (await db.query("SELECT * FROM devisi")).rows;
+  },
+  async getLegacyDevisiDetail(id) {
+    return (await db.query("SELECT *  FROM  devisi where id = $1", [id])).rows;
+  },
+  async createLegacyDevisi(data) {
+    const bbb = data.directorats_id.split('-');
+    return (
+      await db.query(
+        "insert into devisi(title,title_en,description,description_en,directorats_id,directorats_name)values($1,$2,$3,$4,$5,$6)",
+        [data.title, data.title_en, data.description, data.description_en, bbb[0], bbb[1]],
+      )
+    ).rows;
+  },
+  async updateLegacyDevisi(data) {
+    const bbb = data.directorats_id.split('-');
+    return (
+      await db.query(
+        "update devisi set title = $1, description = $2, directorats_id = $3 , directorats_name = $4, title_en = $5, description_en = $6 where id = $7",
+        [data.title, data.description, bbb[0], bbb[1], data.title_en, data.description_en, data.id],
+      )
+    ).rows;
+  },
+  async deleteLegacyDevisi(id) {
+    return (await db.query("DELETE FROM  devisi where id=$1", [id])).rows;
+  },
+
   // Directorats FE resources (news, photos, videos, opini, files)
   async getDirectoratsFeNews(id) {
     return (await db.query(`SELECT * FROM news WHERE directorat LIKE '%${id}%' ORDER BY news_datetime DESC`)).rows;
