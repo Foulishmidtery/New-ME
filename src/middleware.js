@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { evaluateCmsPathAccess } from "./server/auth/authorization.js";
+import { extractLegacyCmsSession } from "./server/auth/session.js";
 
 const trustedOrigins = new Set([
   "https://cms-demo.kneks.go.id",
@@ -64,11 +66,24 @@ function applyCorsHeaders(request, response) {
   response.headers.append("Vary", "Origin");
 }
 
+function authorizeCmsPage(request) {
+  const decision = evaluateCmsPathAccess(
+    request.nextUrl.pathname,
+    extractLegacyCmsSession(request),
+  );
+
+  if (!decision.protected || decision.allowed) return null;
+
+  const location = decision.policy?.unauthorized?.location || "/";
+  const status = decision.policy?.unauthorized?.status || 302;
+  return NextResponse.redirect(new URL(location, request.url), status);
+}
+
 export function middleware(request) {
   const isPreflight = request.method === "OPTIONS";
   const response = isPreflight
     ? new NextResponse(null, { status: 204 })
-    : NextResponse.next();
+    : authorizeCmsPage(request) || NextResponse.next();
 
   applySecurityHeaders(response);
   applyCorsHeaders(request, response);
