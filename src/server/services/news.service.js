@@ -15,4 +15,9 @@ export const newsService = {
     update: (data) => newsRepository.updateLegacyCategory(data),
     remove: (id) => newsRepository.deleteLegacyCategory(id),
   },
+
+  legacyFilters: {
+    byCategory: (id) => newsRepository.getLegacyNewsByCategory(id),
+    byDate: (date) => newsRepository.getLegacyNewsByDate(date),
+  },
 };
