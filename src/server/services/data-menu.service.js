@@ -13,4 +13,12 @@ export const dataMenuService = {
   create(data) { validate(data); return dataMenuRepository.create(data); },
   update(id, data) { validate(data); return dataMenuRepository.update(id, data); },
   remove: (id) => dataMenuRepository.remove(id),
+
+  legacy: {
+    list: () => dataMenuRepository.legacyList(),
+    getRows: (id) => dataMenuRepository.legacyFindById(id),
+    create: (data) => dataMenuRepository.legacyCreate(data),
+    update: (data) => dataMenuRepository.legacyUpdate(data),
+    remove: (id) => dataMenuRepository.legacyRemove(id),
+  },
 };
