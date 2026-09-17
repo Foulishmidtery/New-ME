@@ -1,0 +1,51 @@
+name: Compatibility Baseline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  compatibility:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout New-ME
+        uses: actions/checkout@v4
+
+      - name: Checkout locked Old-BE baseline
+        uses: actions/checkout@v4
+        with:
+          repository: Foulishmidtery/Old-BE
+          ref: 0984f0182738303627dab16fbec60c948e926e01
+          path: old-be
+          fetch-depth: 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check migrated source syntax
+        run: |
+          node --check src/server/compat/legacy-auth-contract.js
+          node --check src/server/controllers/legacy-auth.controller.js
+          node --check src/server/compat/legacy-storage.js
+          node --check 'src/app/storage/[bucket]/[...path]/route.js'
+          node --check src/server/repositories/data-menu.repository.js
+          node --check src/server/services/data-menu.service.js
+          node --check src/server/controllers/legacy-data-menu.controller.js
+          node --check 'src/app/[...legacy]/route.js'
+          node --check scripts/compare-old-be-routes.mjs
+
+      - name: Run compatibility unit tests
+        run: >-
+          node --experimental-default-type=module --test
+          tests/legacy-auth-contract.test.mjs
+          tests/legacy-storage.test.mjs
+          tests/legacy-data-menu-contract.test.mjs
+
+      - name: Compare Old-BE route contract with New-ME manifest
+        run: node scripts/compare-old-be-routes.mjs --old-be old-be
