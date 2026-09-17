@@ -49,5 +49,5 @@ export const menuSettingsRepository = {
 };
 
 function splitLegacyMenuId(value) {
-  return String(value ?? "").split("-");
+  return value.split("-");
 }
