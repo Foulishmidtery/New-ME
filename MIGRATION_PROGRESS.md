@@ -1,10 +1,10 @@
 # Migration Progress — Old-BE → New-ME
 
-Last updated: 2026-09-17
+Last updated: 2026-09-18
 
 Compatibility baseline: `Foulishmidtery/Old-BE@0984f0182738303627dab16fbec60c948e926e01`
 
-Latest substantive compatibility gate: **run #153 — success** (`caaf3bd464168de1ab3a980a1df51575ae47de0a`).
+Latest substantive compatibility gate: **run #161 — success** (`8fabc6a611bddde65cace3cf4c1771afb94dfe2d`).
 
 ## Status model
 
@@ -57,6 +57,7 @@ Source/CI completion does not imply runtime completion.
 | Hot Issue Subcategory CRUD | ✅ | ✅ | 🟡 | 🟡 | Five exact Old-BE routes are native; historical insert-path typo and raw `hot_category_id.split('-')` semantics are retained. |
 | Directorate Division (`devisi`) CRUD | ✅ | ✅ | 🟡 | 🟡 | Five legacy Division routes are native; legacy SQL is isolated from modern `RETURNING` methods and raw `directorats_id.split('-')` is retained. |
 | News Category CRUD | ✅ | ✅ | 🟡 | 🟡 | Five exact category routes are native; legacy SQL uses `news_categories`, preserves `{success:false}` empty behavior, and remains isolated from main News upload logic. |
+| News category/date read-filter | ✅ | ✅ | 🟡 | 🟡 | `/news_category/cat/:id` and `/news/search/:date` are native with their different Old-BE empty-result and ordering semantics preserved. |
 | Hot Issue main CRUD | ❌ | ❌ | ❌ | ❌ | Upload-heavy: insert/update use `photo`, DB stores public upload URL, delete removes filesystem image. |
 | Route-specific upload parity | ❌ | ❌ | ❌ | ❌ | Must inventory each multipart route before migration. |
 | Legacy `.cjs` / adapter fallback | ⚠️ Active | ✅ covered as fallback | 🟡 | 🟡 | Still required for unmigrated domains, especially upload-heavy/security-sensitive flows. Native routes dispatch before this fallback. |
@@ -301,6 +302,58 @@ Browser: 🟡
 
 Compatibility gate: **run #153 — SUCCESS** at commit `caaf3bd464168de1ab3a980a1df51575ae47de0a`.
 
+## News category/date read-filter
+
+Native legacy routes:
+
+- `GET /news_category/cat/:id`
+- `GET /news/search/:date`
+
+Locked Old-BE behavior retained for the category filter:
+
+- source table `news`;
+- ID comes from the path parameter;
+- SQL remains `SELECT * FROM  news where category_id=$1 ORDER BY news_datetime DESC`;
+- bind remains `[id]`;
+- no pagination, `LIMIT`, or `OFFSET` was introduced;
+- successful response is the raw rows array;
+- empty response remains HTTP 200 `[]`.
+
+Locked Old-BE behavior retained for the date filter:
+
+- source table `news`;
+- date comes from the path parameter;
+- SQL remains `SELECT * FROM  news where news_datetime LIKE $1`;
+- bind remains `'%' + date + '%'`;
+- no date parser, date range, `DATE(...)`, equality comparison, `ILIKE`, or added `ORDER BY` was introduced;
+- successful response is the raw rows array;
+- empty response remains HTTP 200 `{ "success": false }`.
+
+The date compatibility path intentionally does **not** reuse modern `newsRepository.search()` / `newsService.search()`. The existing modern keyword search still queries title fields across `news`, `news_photos`, and `news_videos` using `ILIKE`, `ORDER BY id ASC`, `LIMIT 5`, and a combined response.
+
+Native flow:
+
+```text
+legacy News read/filter route
+  → legacy-news-read-filter.controller.js
+  → newsService.legacyFilters
+  → getLegacyNewsByCategory / getLegacyNewsByDate in news.repository.js
+  → news
+```
+
+The dedicated controller is GET-only and contains no multipart parsing, filesystem logic, upload handling, cookie/auth dependency, or public upload URL construction. Both paths are intercepted before `handleLegacyApi`.
+
+Current status:
+
+```text
+Source: ✅
+CI: ✅
+Runtime DB: 🟡
+Browser: 🟡
+```
+
+Compatibility gate: **run #161 — SUCCESS** at commit `8fabc6a611bddde65cace3cf4c1771afb94dfe2d`.
+
 ## Hot Issue main audit
 
 The main `/hotissue` CRUD is **not DB-only** and was not migrated in this task.
@@ -315,22 +368,55 @@ Locked Old-BE behavior includes:
 
 It must stay on legacy/fallback for now.
 
-## Next target audit — News read/filter routes
+## Audit — `GET /posts/type/:name`
 
-Three related Old-BE routes were audited without migrating them:
+This endpoint remains legacy/fallback and was audited without implementation.
 
-- `GET /posts/type/:name`
-- `GET /news_category/cat/:id`
-- `GET /news/search/:date`
+Locked Old-BE route:
 
-`GET /posts/type/:name` must remain a separate future slice. Its handler dynamically builds the source table with `SELECT * FROM news_` + `name`, and `name === 'photos'` enters a special response-mapping branch. It is DB-only at the route level, but its dynamic-table semantics and shape differences make it materially more complex than the two simple filters.
+```text
+GET /posts/type/:name
+```
 
-The two simple filter routes can form the next isolated compatibility slice:
+Handler behavior:
 
-- `GET /news_category/cat/:id` → `SELECT * FROM news where category_id=$1 ORDER BY news_datetime DESC`; success is rows, empty is HTTP 200 `[]`.
-- `GET /news/search/:date` → `SELECT * FROM news where news_datetime LIKE $1` with `['%' + req.params.date + '%']`; success is rows, empty is HTTP 200 `{ "success": false }` and no ordering is added.
+- `name` comes directly from `req.params.name`;
+- SQL is built dynamically as `SELECT * FROM news_` + `name`;
+- the table identifier is therefore **not parameterized**;
+- no `ORDER BY`, pagination, `LIMIT`, or `OFFSET` is present;
+- the read handler itself has no multer, upload, file write/delete, or public URL construction;
+- empty SQL result returns HTTP 200 `{ "success": false }`.
 
-Both operate only on `news`, have no multer/upload/filesystem/public-URL side effect, and currently remain on the legacy News fallback. They should be migrated together only after their own audit → implementation → regression → CI cycle.
+Observed source behavior by `name`:
+
+- when `name === "photos"`, the selected table is `news_photos` and each row is remapped to: `id`, `title`, `photo`, `content`, `photos_datetime`, `title_en`, `content_en`, `ph` (filename derived from `photo.split('/')[5]`), `web_identity`, `tag`, `directorat`, `id_province`, `is_publish`, and `users_name`;
+- for **every non-`photos` value**, Old-BE enters the video-shaped mapping branch. For the normal `videos` case this means table `news_videos` and fields `id`, `title`, `video`, `duration`, `content`, `videos_datetime`, `title_en`, `content_en`, `web_identity`, `tag`, `directorat`, `id_province`, `is_publish`, and `users_name`;
+- Old-BE source does not contain an allowlist restricting `name` to `photos` / `videos`; any value is concatenated into a `news_<name>` table identifier and then, if rows are returned, all non-`photos` values receive the video-shaped mapping.
+
+Security/compatibility concern:
+
+- concatenating an untrusted path value into an SQL identifier creates a dynamic-identifier SQL risk and can address other `news_*` tables available to the DB user;
+- this must not be silently "fixed" by changing the observable contract before legitimate production `name` values are known;
+- New-ME may later replace the dynamic identifier with an internal allowlist/mapping **only after** frontend/runtime evidence establishes the legitimate values, while preserving the same response mapping and empty behavior for those values.
+
+Frontend-consumer audit:
+
+- no direct `/posts/type/...` consumer was found by code search in `Old-BE`, `New-ME`, or the additional KNEKS repository available through the connected GitHub account;
+- therefore the production caller and the full set of legitimate `name` values remain 🟡 and require the actual production frontend repository, browser/network trace, or equivalent runtime evidence before compatibility implementation is finalized.
+
+Relationship with media tables:
+
+- `photos` naturally resolves to `news_photos` and receives the special photo mapping;
+- `videos` naturally resolves to `news_videos` and receives the non-photo/video mapping;
+- other `news_*` tables are technically addressable by the legacy dynamic SQL if the database contains them, which is precisely why implementation must separate the legacy observable contract from a safer internal identifier mapping.
+
+Audit status:
+
+```text
+Source contract: ✅ audited
+Frontend legitimate values: 🟡 requires verification
+Implementation: ❌ not started in this task
+```
 
 ## Native compatibility dispatch
 
@@ -354,19 +440,20 @@ Both operate only on `news`, have no multer/upload/filesystem/public-URL side ef
 16. Menu / Submenu settings
 17. Negara reference
 18. News Category CRUD
-19. Pembuka reference
-20. Peserta reference
-21. Prioritas reference
-22. Province
-23. Roles lookup
-24. Scopes
-25. Social Media / Post Social Media
-26. Tagging
-27. Usia reference
-28. Web Profile reads
-29. Web Profile DB-only settings
-30. Zona KHAS
-31. remaining routes → `legacy-handler-adapter.js`
+19. News category/date read-filter
+20. Pembuka reference
+21. Peserta reference
+22. Prioritas reference
+23. Province
+24. Roles lookup
+25. Scopes
+26. Social Media / Post Social Media
+27. Tagging
+28. Usia reference
+29. Web Profile reads
+30. Web Profile DB-only settings
+31. Zona KHAS
+32. remaining routes → `legacy-handler-adapter.js`
 
 The fallback remains intentional until each remaining domain has its own parity gate and runtime-sensitive behavior is verified. Native routes are intercepted before fallback; keeping sibling fallback code present is currently a safety measure, not evidence that the native route is unused.
 
@@ -375,11 +462,11 @@ The fallback remains intentional until each remaining domain has its own parity 
 `.github/workflows/compatibility-baseline.yml` currently validates:
 
 - migrated source syntax with `node --check`;
-- all registered Node contract/regression tests, including Hot Issue Category, Hot Issue Subcategory, Directorate Division, and News Category;
+- all registered Node contract/regression tests, including Hot Issue Category, Hot Issue Subcategory, Directorate Division, News Category, and News category/date read-filter;
 - locked Old-BE route compatibility via `compare-old-be-routes.mjs`;
 - exact per-page role authorization compatibility via `compare-old-be-role-policies.mjs`.
 
-Latest substantive migration result: **GitHub Actions run #153 — SUCCESS** at commit `caaf3bd464168de1ab3a980a1df51575ae47de0a`.
+Latest substantive migration result: **GitHub Actions run #161 — SUCCESS** at commit `8fabc6a611bddde65cace3cf4c1771afb94dfe2d`.
 
 This is source/static/automated parity only. It does not replace real DB/browser testing.
 
@@ -398,6 +485,6 @@ Before any future upload domain is changed, inventory each Old-BE route for:
 1. Recover the real New-ME `package.json` and lockfile from the actual development source; dependency reconstruction remains blocked until then.
 2. Keep runtime DB/browser verification 🟡 for source/CI-complete DB-backed slices until a runnable environment exists.
 3. Keep Institution `logo_member`, main Hot Issue, main News upload, Directorate media and all other upload-heavy mutations on fallback.
-4. **Next exact target: News category/date read-filter slice** — `GET /news_category/cat/:id` + `GET /news/search/:date`. Both are DB-only `news` queries with isolated response contracts. Keep `GET /posts/type/:name` separate because its dynamic `news_${name}` table selection and special `photos` mapping require an independent compatibility audit.
+4. **Next exact target: `GET /posts/type/:name` compatibility.** Before implementation, verify the legitimate production `name` values from the actual frontend/runtime. Preserve the Old-BE photo mapping, non-photo/video-shaped mapping, empty `{ "success": false }`, and lack of ordering. If frontend evidence confirms a finite legitimate set (for example `photos` and `videos`), implement an internal allowlist/mapping rather than raw dynamic SQL while keeping observable behavior identical for those legitimate values.
 
 No domain above with 🟡 runtime status is considered fully production-complete yet.
