@@ -1,0 +1,7 @@
+{
+  "repository": "Foulishmidtery/Old-BE",
+  "branch": "main",
+  "commit": "0984f0182738303627dab16fbec60c948e926e01",
+  "capturedAt": "2026-09-17T08:57:21Z",
+  "purpose": "Compatibility baseline for Old-BE -> New-ME migration"
+}
