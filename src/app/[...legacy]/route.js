@@ -14,6 +14,7 @@ import { handleLegacyMenuSettings } from "@/server/controllers/legacy-menu-setti
 import { handleLegacyNegaraReference } from "@/server/controllers/legacy-negara-reference.controller";
 import { handleLegacyPembukaReference } from "@/server/controllers/legacy-pembuka-reference.controller";
 import { handleLegacyPesertaReference } from "@/server/controllers/legacy-peserta-reference.controller";
+import { handleLegacyPrioritasReference } from "@/server/controllers/legacy-prioritas-reference.controller";
 import { handleLegacyProvince } from "@/server/controllers/legacy-province.controller";
 import { handleLegacyScopes } from "@/server/controllers/legacy-scopes.controller";
 import { handleLegacySocialMedia } from "@/server/controllers/legacy-social-media.controller";
@@ -74,6 +75,9 @@ async function dispatch(request) {
 
   const pesertaReferenceResponse = await handleLegacyPesertaReference(request);
   if (pesertaReferenceResponse) return pesertaReferenceResponse;
+
+  const prioritasReferenceResponse = await handleLegacyPrioritasReference(request);
+  if (prioritasReferenceResponse) return prioritasReferenceResponse;
 
   const provinceResponse = await handleLegacyProvince(request);
   if (provinceResponse) return provinceResponse;
