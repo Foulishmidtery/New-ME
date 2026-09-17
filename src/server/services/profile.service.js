@@ -26,6 +26,7 @@ export const profileService = {
   listScopes: () => profileRepository.listScopes(),
   getScope: (id) => profileRepository.getScope(id),
   updateScope: (id, data) => profileRepository.updateScope(id, data),
+  legacyUpdateScope: (data) => profileRepository.legacyUpdateScope(data),
   deleteScope: (id) => profileRepository.deleteScope(id),
 
   // Maps
