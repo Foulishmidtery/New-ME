@@ -53,6 +53,30 @@ export const hotissueRepository = {
     return (await db.query("DELETE FROM hot_subcategories WHERE id=$1 RETURNING id", [id])).rows[0] ?? null;
   },
 
+  // Legacy Sub Category compatibility. These intentionally keep Old-BE mutation
+  // SQL semantics (including no RETURNING) separate from the additive modern methods.
+  async legacyCreateSubcategory(data) {
+    const hcid = data.hot_category_id.split('-');
+    return (
+      await db.query(
+        "insert into hot_subcategories(title,title_en,hot_category_id,hot_category_name) values($1,$2,$3,$4)",
+        [data.title, data.title_en, hcid[0], hcid[1]],
+      )
+    ).rows;
+  },
+  async legacyUpdateSubcategory(data) {
+    const hcid = data.hot_category_id.split('-');
+    return (
+      await db.query(
+        "update hot_subcategories set title=$1,title_en=$2,hot_category_id=$3,hot_category_name=$4 where id = $5",
+        [data.title, data.title_en, hcid[0], hcid[1], data.id],
+      )
+    ).rows;
+  },
+  async legacyRemoveSubcategory(id) {
+    return (await db.query("DELETE FROM hot_subcategories where id=$1", [id])).rows;
+  },
+
   // Hot Issues
   async listIssues() {
     return (await db.query("SELECT * FROM hot_issues")).rows;
