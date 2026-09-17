@@ -4,7 +4,7 @@ Last updated: 2026-09-17
 
 Compatibility baseline: `Foulishmidtery/Old-BE@0984f0182738303627dab16fbec60c948e926e01`
 
-Latest substantive compatibility gate: **run #146 — success** (`44ef62b9eaac914e88d4c5923053d18bebaf5419`).
+Latest substantive compatibility gate: **run #153 — success** (`caaf3bd464168de1ab3a980a1df51575ae47de0a`).
 
 ## Status model
 
@@ -56,6 +56,7 @@ Source/CI completion does not imply runtime completion.
 | Hot Issue Category CRUD | ✅ | ✅ | 🟡 | 🟡 | Five legacy category routes are native; no upload/filesystem side effect exists in this slice. |
 | Hot Issue Subcategory CRUD | ✅ | ✅ | 🟡 | 🟡 | Five exact Old-BE routes are native; historical insert-path typo and raw `hot_category_id.split('-')` semantics are retained. |
 | Directorate Division (`devisi`) CRUD | ✅ | ✅ | 🟡 | 🟡 | Five legacy Division routes are native; legacy SQL is isolated from modern `RETURNING` methods and raw `directorats_id.split('-')` is retained. |
+| News Category CRUD | ✅ | ✅ | 🟡 | 🟡 | Five exact category routes are native; legacy SQL uses `news_categories`, preserves `{success:false}` empty behavior, and remains isolated from main News upload logic. |
 | Hot Issue main CRUD | ❌ | ❌ | ❌ | ❌ | Upload-heavy: insert/update use `photo`, DB stores public upload URL, delete removes filesystem image. |
 | Route-specific upload parity | ❌ | ❌ | ❌ | ❌ | Must inventory each multipart route before migration. |
 | Legacy `.cjs` / adapter fallback | ⚠️ Active | ✅ covered as fallback | 🟡 | 🟡 | Still required for unmigrated domains, especially upload-heavy/security-sensitive flows. Native routes dispatch before this fallback. |
@@ -251,6 +252,55 @@ Browser: 🟡
 
 Compatibility gate: **run #146 — SUCCESS** at commit `44ef62b9eaac914e88d4c5923053d18bebaf5419`.
 
+## News Category DB-only CRUD
+
+Native legacy routes:
+
+- `GET /categories`
+- `GET /detailnewscategory/:id`
+- `POST /insertnewscategory`
+- `POST /updatenewscategory`
+- `GET /deletenewscategory/:id`
+
+Locked Old-BE behavior retained:
+
+- source table `news_categories`;
+- list SQL remains `SELECT * FROM news_categories` with no `ORDER BY`, `LIMIT`, or `OFFSET`;
+- list success remains raw rows and an empty list remains HTTP 200 `{ "success": false }`;
+- detail ID comes from the path and detail success remains the raw rows array; empty detail remains HTTP 200 `{ "success": false }`;
+- insert fields remain `title`, `title_en`, `description`, `description_en`;
+- update writes those same fields and takes the update ID from body `id`;
+- delete remains `GET /deletenewscategory/:id` and takes the ID from the path;
+- insert/update/delete redirect to `/nc` with HTTP 302;
+- compatibility mutation SQL intentionally has no `RETURNING`;
+- no auth/cookie requirement was added to these API routes;
+- no multipart parser, `news_path`, upload, filesystem write/delete, public upload URL, or external service exists in this Category slice.
+
+Native flow:
+
+```text
+legacy News Category route
+  → legacy-news-category.controller.js
+  → newsService.legacyCategory
+  → legacy Category methods in news.repository.js
+  → news_categories
+```
+
+Main News methods (`list`, `search`, `get`, `create`, `update`, `remove`) remain separate and were not rewritten. Main News insert/update/delete upload behavior therefore remains outside this native Category slice.
+
+The five Category paths are intercepted in `src/app/[...legacy]/route.js` before `handleLegacyApi`. The older News fallback remains available for main News and other unmigrated News-related routes.
+
+Current status:
+
+```text
+Source: ✅
+CI: ✅
+Runtime DB: 🟡
+Browser: 🟡
+```
+
+Compatibility gate: **run #153 — SUCCESS** at commit `caaf3bd464168de1ab3a980a1df51575ae47de0a`.
+
 ## Hot Issue main audit
 
 The main `/hotissue` CRUD is **not DB-only** and was not migrated in this task.
@@ -265,19 +315,22 @@ Locked Old-BE behavior includes:
 
 It must stay on legacy/fallback for now.
 
-## Next target audit — News Category
+## Next target audit — News read/filter routes
 
-The next exact candidate is **News Category DB-only CRUD**. Source audit confirms the category routes themselves do not use the News upload middleware:
+Three related Old-BE routes were audited without migrating them:
 
-- `POST /insertnewscategory`
-- `POST /updatenewscategory`
-- `GET /categories`
-- `GET /detailnewscategory/:id`
-- `GET /deletenewscategory/:id`
+- `GET /posts/type/:name`
+- `GET /news_category/cat/:id`
+- `GET /news/search/:date`
 
-Old-BE handlers operate only on `news_categories`: list/detail use SELECT, insert/update use plain SQL without `RETURNING`, delete removes the DB row, and mutations redirect to `/nc`. No category handler uses multer, filesystem deletion, public upload URL construction or an external service.
+`GET /posts/type/:name` must remain a separate future slice. Its handler dynamically builds the source table with `SELECT * FROM news_` + `name`, and `name === 'photos'` enters a special response-mapping branch. It is DB-only at the route level, but its dynamic-table semantics and shape differences make it materially more complex than the two simple filters.
 
-The New-ME `newsRepository` currently contains the main News methods but no dedicated News Category compatibility methods/controller, so this remains an unmigrated, isolatable DB-only slice. Main News upload routes remain out of scope.
+The two simple filter routes can form the next isolated compatibility slice:
+
+- `GET /news_category/cat/:id` → `SELECT * FROM news where category_id=$1 ORDER BY news_datetime DESC`; success is rows, empty is HTTP 200 `[]`.
+- `GET /news/search/:date` → `SELECT * FROM news where news_datetime LIKE $1` with `['%' + req.params.date + '%']`; success is rows, empty is HTTP 200 `{ "success": false }` and no ordering is added.
+
+Both operate only on `news`, have no multer/upload/filesystem/public-URL side effect, and currently remain on the legacy News fallback. They should be migrated together only after their own audit → implementation → regression → CI cycle.
 
 ## Native compatibility dispatch
 
@@ -300,19 +353,20 @@ The New-ME `newsRepository` currently contains the main News methods but no dedi
 15. Maps
 16. Menu / Submenu settings
 17. Negara reference
-18. Pembuka reference
-19. Peserta reference
-20. Prioritas reference
-21. Province
-22. Roles lookup
-23. Scopes
-24. Social Media / Post Social Media
-25. Tagging
-26. Usia reference
-27. Web Profile reads
-28. Web Profile DB-only settings
-29. Zona KHAS
-30. remaining routes → `legacy-handler-adapter.js`
+18. News Category CRUD
+19. Pembuka reference
+20. Peserta reference
+21. Prioritas reference
+22. Province
+23. Roles lookup
+24. Scopes
+25. Social Media / Post Social Media
+26. Tagging
+27. Usia reference
+28. Web Profile reads
+29. Web Profile DB-only settings
+30. Zona KHAS
+31. remaining routes → `legacy-handler-adapter.js`
 
 The fallback remains intentional until each remaining domain has its own parity gate and runtime-sensitive behavior is verified. Native routes are intercepted before fallback; keeping sibling fallback code present is currently a safety measure, not evidence that the native route is unused.
 
@@ -321,11 +375,11 @@ The fallback remains intentional until each remaining domain has its own parity 
 `.github/workflows/compatibility-baseline.yml` currently validates:
 
 - migrated source syntax with `node --check`;
-- all registered Node contract/regression tests, including Hot Issue Category, Hot Issue Subcategory and Directorate Division;
+- all registered Node contract/regression tests, including Hot Issue Category, Hot Issue Subcategory, Directorate Division, and News Category;
 - locked Old-BE route compatibility via `compare-old-be-routes.mjs`;
 - exact per-page role authorization compatibility via `compare-old-be-role-policies.mjs`.
 
-Latest substantive migration result: **GitHub Actions run #146 — SUCCESS** at commit `44ef62b9eaac914e88d4c5923053d18bebaf5419`.
+Latest substantive migration result: **GitHub Actions run #153 — SUCCESS** at commit `caaf3bd464168de1ab3a980a1df51575ae47de0a`.
 
 This is source/static/automated parity only. It does not replace real DB/browser testing.
 
@@ -344,6 +398,6 @@ Before any future upload domain is changed, inventory each Old-BE route for:
 1. Recover the real New-ME `package.json` and lockfile from the actual development source; dependency reconstruction remains blocked until then.
 2. Keep runtime DB/browser verification 🟡 for source/CI-complete DB-backed slices until a runnable environment exists.
 3. Keep Institution `logo_member`, main Hot Issue, main News upload, Directorate media and all other upload-heavy mutations on fallback.
-4. **Next exact target: News Category DB-only CRUD.** Its category routes are plain DB handlers with no multer/filesystem/external-service side effects and can be isolated from the upload-heavy main News flow.
+4. **Next exact target: News category/date read-filter slice** — `GET /news_category/cat/:id` + `GET /news/search/:date`. Both are DB-only `news` queries with isolated response contracts. Keep `GET /posts/type/:name` separate because its dynamic `news_${name}` table selection and special `photos` mapping require an independent compatibility audit.
 
 No domain above with 🟡 runtime status is considered fully production-complete yet.
