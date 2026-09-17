@@ -16,6 +16,7 @@ import { handleLegacyPembukaReference } from "@/server/controllers/legacy-pembuk
 import { handleLegacyPesertaReference } from "@/server/controllers/legacy-peserta-reference.controller";
 import { handleLegacyPrioritasReference } from "@/server/controllers/legacy-prioritas-reference.controller";
 import { handleLegacyProvince } from "@/server/controllers/legacy-province.controller";
+import { handleLegacyRolesReference } from "@/server/controllers/legacy-roles-reference.controller";
 import { handleLegacyScopes } from "@/server/controllers/legacy-scopes.controller";
 import { handleLegacySocialMedia } from "@/server/controllers/legacy-social-media.controller";
 import { handleLegacyTagging } from "@/server/controllers/legacy-tagging.controller";
@@ -82,6 +83,9 @@ async function dispatch(request) {
 
   const provinceResponse = await handleLegacyProvince(request);
   if (provinceResponse) return provinceResponse;
+
+  const rolesReferenceResponse = await handleLegacyRolesReference(request);
+  if (rolesReferenceResponse) return rolesReferenceResponse;
 
   const scopesResponse = await handleLegacyScopes(request);
   if (scopesResponse) return scopesResponse;
