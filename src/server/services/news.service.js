@@ -20,4 +20,8 @@ export const newsService = {
     byCategory: (id) => newsRepository.getLegacyNewsByCategory(id),
     byDate: (date) => newsRepository.getLegacyNewsByDate(date),
   },
+
+  legacyPostTypes: {
+    list: (name) => newsRepository.getLegacyPostTypeRows(name),
+  },
 };
