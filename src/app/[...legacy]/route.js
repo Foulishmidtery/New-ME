@@ -5,6 +5,7 @@ import { handleLegacyAreaReference } from "@/server/controllers/legacy-area-refe
 import { handleLegacyContacts } from "@/server/controllers/legacy-contacts.controller";
 import { handleLegacyDataMenu } from "@/server/controllers/legacy-data-menu.controller";
 import { handleLegacyGenderReference } from "@/server/controllers/legacy-gender-reference.controller";
+import { handleLegacyHotIssueCategory } from "@/server/controllers/legacy-hotissue-category.controller";
 import { handleLegacyInstitutionsRead } from "@/server/controllers/legacy-institutions-read.controller";
 import { handleLegacyKbliReference } from "@/server/controllers/legacy-kbli-reference.controller";
 import { handleLegacyKdeksProfileRead } from "@/server/controllers/legacy-kdeks-profile-read.controller";
@@ -50,6 +51,9 @@ async function dispatch(request) {
 
   const genderReferenceResponse = await handleLegacyGenderReference(request);
   if (genderReferenceResponse) return genderReferenceResponse;
+
+  const hotIssueCategoryResponse = await handleLegacyHotIssueCategory(request);
+  if (hotIssueCategoryResponse) return hotIssueCategoryResponse;
 
   const institutionsReadResponse = await handleLegacyInstitutionsRead(request);
   if (institutionsReadResponse) return institutionsReadResponse;
