@@ -28,4 +28,8 @@ export const newsService = {
   legacyPhoto: {
     detail: (id) => newsRepository.getLegacyPhotoDetailRows(id),
   },
+
+  legacyVideo: {
+    detail: (id) => newsRepository.getLegacyVideoDetailRows(id),
+  },
 };
