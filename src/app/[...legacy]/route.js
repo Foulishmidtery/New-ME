@@ -6,6 +6,7 @@ import { handleLegacyContacts } from "@/server/controllers/legacy-contacts.contr
 import { handleLegacyDataMenu } from "@/server/controllers/legacy-data-menu.controller";
 import { handleLegacyGenderReference } from "@/server/controllers/legacy-gender-reference.controller";
 import { handleLegacyHotIssueCategory } from "@/server/controllers/legacy-hotissue-category.controller";
+import { handleLegacyHotIssueSubcategory } from "@/server/controllers/legacy-hotissue-subcategory.controller";
 import { handleLegacyInstitutionsRead } from "@/server/controllers/legacy-institutions-read.controller";
 import { handleLegacyKbliReference } from "@/server/controllers/legacy-kbli-reference.controller";
 import { handleLegacyKdeksProfileRead } from "@/server/controllers/legacy-kdeks-profile-read.controller";
@@ -54,6 +55,9 @@ async function dispatch(request) {
 
   const hotIssueCategoryResponse = await handleLegacyHotIssueCategory(request);
   if (hotIssueCategoryResponse) return hotIssueCategoryResponse;
+
+  const hotIssueSubcategoryResponse = await handleLegacyHotIssueSubcategory(request);
+  if (hotIssueSubcategoryResponse) return hotIssueSubcategoryResponse;
 
   const institutionsReadResponse = await handleLegacyInstitutionsRead(request);
   if (institutionsReadResponse) return institutionsReadResponse;
