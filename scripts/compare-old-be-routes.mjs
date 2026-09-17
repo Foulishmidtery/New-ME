@@ -49,17 +49,19 @@ function resolveOldBeRoot(args) {
 }
 
 function verifyOldBeCommit(repoRoot, expectedCommit) {
+  let actual;
   try {
-    const actual = execFileSync("git", ["-C", repoRoot, "rev-parse", "HEAD"], {
+    actual = execFileSync("git", ["-C", repoRoot, "rev-parse", "HEAD"], {
       encoding: "utf8",
       stdio: ["ignore", "pipe", "pipe"],
     }).trim();
-    if (actual !== expectedCommit) {
-      fail(`Old-BE checkout tidak berada pada baseline yang dikunci. Expected ${expectedCommit}, actual ${actual}.`);
-    }
-  } catch (error) {
-    if (error?.status) throw error;
+  } catch {
     console.warn("Peringatan: commit Old-BE tidak dapat diverifikasi dengan git; perbandingan source tetap dilanjutkan.");
+    return;
+  }
+
+  if (actual !== expectedCommit) {
+    fail(`Old-BE checkout tidak berada pada baseline yang dikunci. Expected ${expectedCommit}, actual ${actual}.`);
   }
 }
 
