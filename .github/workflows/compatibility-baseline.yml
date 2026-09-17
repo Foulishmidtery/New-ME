@@ -40,12 +40,15 @@ jobs:
           node --check src/server/controllers/legacy-kdeks-profile-read.controller.js
           node --check src/server/controllers/legacy-web-profile-read.controller.js
           node --check src/server/controllers/legacy-web-profile-settings.controller.js
+          node --check src/server/controllers/legacy-menu-settings.controller.js
           node --check src/server/compat/legacy-storage.js
           node --check 'src/app/storage/[bucket]/[...path]/route.js'
           node --check src/server/repositories/abouts.repository.js
           node --check src/server/services/abouts.service.js
           node --check src/server/repositories/web-profile.repository.js
           node --check src/server/services/web-profile.service.js
+          node --check src/server/repositories/menu-settings.repository.js
+          node --check src/server/services/menu-settings.service.js
           node --check src/server/repositories/data-menu.repository.js
           node --check src/server/services/data-menu.service.js
           node --check src/server/controllers/legacy-data-menu.controller.js
@@ -74,6 +77,7 @@ jobs:
           tests/legacy-kdeks-profile-read-contract.test.mjs
           tests/legacy-web-profile-read-contract.test.mjs
           tests/legacy-web-profile-settings-contract.test.mjs
+          tests/legacy-menu-settings-contract.test.mjs
           tests/legacy-storage.test.mjs
           tests/legacy-data-menu-contract.test.mjs
           tests/legacy-agenda-contract.test.mjs
