@@ -3,6 +3,7 @@ import { handleLegacyAgenda } from "@/server/controllers/legacy-agenda.controlle
 import { handleLegacyDataMenu } from "@/server/controllers/legacy-data-menu.controller";
 import { handleLegacyProvince } from "@/server/controllers/legacy-province.controller";
 import { handleLegacyTagging } from "@/server/controllers/legacy-tagging.controller";
+import { handleLegacyZonaKhas } from "@/server/controllers/legacy-zona-khas.controller";
 import { handleLegacyApi } from "@/server/legacy-handler-adapter";
 
 export const runtime = "nodejs";
@@ -23,6 +24,9 @@ async function dispatch(request) {
 
   const taggingResponse = await handleLegacyTagging(request);
   if (taggingResponse) return taggingResponse;
+
+  const zonaKhasResponse = await handleLegacyZonaKhas(request);
+  if (zonaKhasResponse) return zonaKhasResponse;
 
   const response = await handleLegacyApi(request);
   return response || Response.json({ message: "Route API tidak ditemukan." }, { status: 404 });
