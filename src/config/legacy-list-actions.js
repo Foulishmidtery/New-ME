@@ -1,0 +1,26 @@
+/** Only id-only legacy actions are exposed automatically. */
+export const legacyListActions = {
+  "agenda/list": { remove: "/deleteagenda/:id" },
+  "data/menu/list": { remove: "/delete_data_menu/:id" },
+  "data/submenu/list": { remove: "/delete_submenu/:id" },
+  "data/slider/data": { remove: "/delete_slider_data/:id" },
+  "data/dataset/list": { remove: "/deletesourcesdata/:id" },
+  "hot_issue_management/hot_issue_category/list": { remove: "/deletehotissuecategory/:id" },
+  "hot_issue_management/hot_issue_sub_category/list": { remove: "/deletehotissuesubcategory/:id" },
+  "news_management/news_category/list": { remove: "/deletenewscategory/:id" },
+  "one_data_center/files_category/list": { remove: "/deletefilecategory/:id" },
+  "profile/institution/list": { remove: "/deleteinstitutions/:id" },
+  "profile/social_media/list": { remove: "/deletesosmed/:id" },
+  "profile/post_sosmed/list": { remove: "/postdeletesosmed/:id" },
+  "profile/scope/list": { remove: "/deletescopes/:id" },
+  "tagging/list": { remove: "/deletetagging/:id" },
+  "user_management/new_user/list": { approve: "/approveusers/:id", remove: "/deleteuser/:id" },
+  "user_management/approve/list": { approve: "/approveipaddress/:id", remove: "/deleteapproveip/:id" },
+  "user_management/rejected/list": { remove: "/deleterejectedip/:id" },
+  "user_management/whitelist/ipaddress": { remove: "/deleteipaddress/:id" },
+  // Parameter seperti :foto dan :file diisi otomatis dari field row yang sama.
+  "news_management/news/list": { remove: "/deletenews/:id/:foto" },
+  "hot_issue_management/hot_issue/list": { remove: "/deletehotissue/:id/:foto" },
+  "photos/list": { remove: "/deletephoto/:id/:foto" },
+  "one_data_center/files/list": { remove: "/deletefilesupload/:id/:file" },
+};

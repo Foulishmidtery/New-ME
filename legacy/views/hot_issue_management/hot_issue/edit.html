@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zxx">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="" />
+    <meta name="keyword" content="" />
+    <meta name="author" content="theme_ocean" />
+    <title>KNEKS BACKEND || Dashboard</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/assets/images/favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="/assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="/assets/vendors/css/vendors.min.css">
+    <link rel="stylesheet" type="text/css" href="/assets/vendors/css/select2.min.css">
+    <link rel="stylesheet" type="text/css" href="/assets/vendors/css/select2-theme.min.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/theme.min.css" />
+    <link rel="stylesheet" type="text/css" href="/assets/vendors/css/tagify.min.css" />
+    <script type="text/javascript" src="https://js.nicedit.com/nicEdit-latest.js"></script>
+    <script type="text/javascript">
+        bkLib.onDomLoaded(function () {
+            new nicEditor({ maxHeight: 100 }).panelInstance('editor1');
+            new nicEditor({ maxHeight: 100 }).panelInstance('editor2');
+            new nicEditor({ maxHeight: 100 }).panelInstance('editor3');
+            new nicEditor({ maxHeight: 100 }).panelInstance('editor4');
+        });
+    </script>
+</head>
+
+<body>
+    <!--! ================================================================ !-->
+    <!--! [Start] Navigation Manu !-->
+    <!--! ================================================================ !-->
+    <script src="/nav.js"></script>
+    <!--! ================================================================ !-->
+    <!--! [End]  Navigation Manu !-->
+    <!--! ================================================================ !-->
+    <!--! ================================================================ !-->
+    <!--! [Start] Header !-->
+    <!--! ================================================================ !-->
+    <script src="/header.js"></script>
+    <!--! ================================================================ !-->
+    <!--! [Start] Main Content !-->
+    <!--! ================================================================ !-->
+    <main class="nxl-container">
+        <div class="nxl-content">
+            <!-- [ page-header ] start -->
+            <script src="/breadchumb.js"></script>
+            <div class="main-content">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <form action="/updatehotissue" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="id" id="id" value="">
+                            <div class="card stretch stretch-full">
+                                <div class="card-body lead-status">
+                                    <div class="mb-5 d-flex align-items-center justify-content-between">
+                                        <h5 class="fw-bold mb-0 me-4">
+                                            <span class="d-block mb-2">Ubah Isu Terkini :</span>
+                                            <span class="fs-12 fw-normal text-muted text-truncate-1-line">Silahkan
+                                                Ubah
+                                                Isu Terkini Di Bawah Ini</span>
+                                        </h5>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Judul [ID] )* </label>
+                                            <input class="form-control" type="text" name="title" id="title">
+                                        </div>
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Judul [EN] )*</label>
+                                            <input class="form-control" type="text" name="title_en" id="title_en"
+                                                required>
+                                        </div>
+                                        <!-- <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Kategori Isu </label>
+                                            <select class="form-control" name="hot_category_id" id="hotcatid" required>
+                                                <option value="0"> Pilih </option>
+                                            </select>
+                                        </div> -->
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Sub Kategori )*</label>
+                                            <select class="form-control" name="sub_category_id" id="catid">
+                                                <option value="0"> Pilih </option>
+                                            </select>
+                                        </div>
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Kutipan [ID] )*</label>
+                                            <textarea class="form-control" name="excerpt" id="editor1"></textarea>
+                                        </div>
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Kutipan [EN] )*</label>
+                                            <textarea class="form-control" name="excerpt_en" id="editor2"></textarea>
+                                        </div>
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Konten [ID] )*</label>
+                                            <textarea class="form-control" name="content" id="editor3"></textarea>
+                                        </div>
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Konten [EN] )*</label>
+                                            <textarea class="form-control" name="content_en" id="editor4"></textarea>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Photo Preview</label>
+                                            <p id="preview"></p>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Photo )*</label>
+                                            <input class="form-control" name="photo" id="photo" type="file">
+                                            <p>Masukkan dengan file type jpg, jpeg, png. </p>
+                                            <p>Min. Size: width 400px & height 300px.</p>
+                                            <p>Max. Size: width 800px & height 600px.</p>
+                                            <p>Max Upload 1 MB</p>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Tayang</label>
+                                            <!-- <input name="is_publish" id="is_publish" type="checkbox" value="1">
+                                            Publish -->
+                                            <div id="publish_hot_issue"></div>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Tanggal</label>
+                                            <input class="form-control" name="issue_datetime" id="issue_datetime"
+                                                type="datetime-local">
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Tagging</label>
+                                            <span id="tag">
+
+                                            </span>
+                                            <input name="taggings" type="text" class="tagify" id="tagify" required>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Direktorat</label>
+                                            <select class="form-control" name="directorat" id="mySelect2" multiple
+                                                required>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">KDEKS</label>
+                                            <!-- <select class="form-control" name="kdeks" id="provinces" required>
+                                                <option value="0"></option>
+                                            </select> -->
+                                            <select class="form-control" name="kdeks" id="mySelect3" multiple required>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4 text-left">
+                                            <label class="form-label"></label>
+                                            <input class="btn btn-primary" type="submit" value="Simpan">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+                    </form>
+                </div>
+            </div>
+            <!-- [ Main Content ] end -->
+        </div>
+        <!-- [ Footer ] start -->
+        <!-- <footer class="footer">
+            <p class="fs-11 text-muted fw-medium text-uppercase mb-0 copyright">
+                <span>Copyright ©</span>
+                <script>
+                    document.write(new Date().getFullYear());
+                </script>
+            </p>
+            <div class="d-flex align-items-center gap-4">
+                <a href="javascript:void(0);" class="fs-11 fw-semibold text-uppercase">Help</a>
+                <a href="javascript:void(0);" class="fs-11 fw-semibold text-uppercase">Terms</a>
+                <a href="javascript:void(0);" class="fs-11 fw-semibold text-uppercase">Privacy</a>
+            </div>
+        </footer> -->
+        <!-- [ Footer ] end -->
+    </main>
+
+    <script src="/assets/vendors/js/vendors.min.js"></script>
+    <script src="/assets/vendors/js/select2.min.js"></script>
+    <script src="/assets/vendors/js/select2-active.min.js"></script>
+    <script src="/assets/js/common-init.min.js"></script>
+    <script src="/assets/js/theme-customizer-init.min.js"></script>
+    <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
+    <script src="/assets/vendors/js/tagify.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script>
+
+        function getProvinces() {
+            fetch('/provinces')
+                .then(response => response.json())
+                .then((data) => {
+                    const getArrays = localStorage.getItem("prov_idhi");
+                    let arrays = [];
+                    if (getArrays.length <= 1) {
+                        arrays.push(getArrays);
+                    } else {
+                        const str = getArrays.replace(/[{}"]/g, "").split(",")
+                            .map(Number)
+                            .join(",");
+                        let chars = str.split(",").map(Number);
+                        arrays.push(chars)
+                    }
+                    var opt = [];
+                    data.forEach(element => {
+                        opt.push('<option value="' + element?.id + '">' + element?.province_name + '</option>');
+                    });
+                    $('#mySelect3').empty().append(opt).trigger('change');
+                    $('#mySelect3').val(arrays[0]).trigger('change');
+
+                })
+        }
+
+        function getDirectorats() {
+            $.ajax({
+                url: '/directorat_fe',
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    const getArray = localStorage.getItem("object_dir_hi");
+                    let array = [];
+                    if (getArray.length <= 1) {
+                        array.push(getArray[0]);
+                    } else {
+                        const strings = getArray.replace(/[{}"]/g, "").split(",")
+                            .map(Number)
+                            .join(",");
+                        for (let char of strings) {
+                            if (char !== ',') {
+                                array.push(char);
+                            }
+                        }
+                    }
+                    var options = [];
+                    $.each(data, function (index, value) {
+                        options.push('<option value="' + value.id + '">' + value.title + '</option>');
+                    });
+                    $('#mySelect2').empty().append(options).trigger('change');
+                    $('#mySelect2').val(array).trigger('change');
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            const inputElm = document.querySelector('input.tagify');
+            new Tagify(inputElm);
+            getProvinces()
+            getDirectorats()
+            $('#mySelect2').select2();
+            $('#mySelect3').select2();
+        });
+    </script>
+
+    <script>
+        window.addEventListener("load", async () => {
+            let hot_subcategory_id;
+            let hot_category;
+            let prov_id;
+            await getUrlById();
+            await getCategoryHotIssue();
+            await getTagging();
+            // await getCategoryHotIssueId()
+        })
+
+        function getUrlById() {
+            const URLS = new URL(window.location.href);
+            fetch('/hotissuedetail/' + URLS.pathname.split('/')[2])
+                .then(data => data.json())
+                .then((rows) => {
+                    document.getElementById("id").value = rows[0]?.id;
+                    document.getElementById("title").value = rows[0]?.title;
+                    document.getElementById("title_en").value = rows[0]?.title_en;
+                    nicEditors.findEditor("editor1").setContent(rows[0]?.excerpt);
+                    nicEditors.findEditor("editor2").setContent(rows[0]?.excerpt_en);
+                    nicEditors.findEditor("editor3").setContent(rows[0]?.content);
+                    nicEditors.findEditor("editor4").setContent(rows[0]?.content_en);
+                    hot_subcategory_id = rows[0]?.hot_subcategory_id;
+                    hot_category = rows[0]?.hot_issue_category;
+                    prov_id = rows[0]?.id_province;
+                    localStorage.setItem("object_dir_hi", rows[0]?.directorat)
+                    localStorage.setItem("prov_idhi", rows[0]?.id_province);
+                    // if (rows?.is_publish == 1) {
+                    //     document.getElementById("is_publish").setAttribute('checked', true);
+                    // } else {
+                    //     document.getElementById("is_publish").setAttribute('checked', false);
+                    // }
+                    if (rows[0]?.is_publish == 'on') {
+                        document.getElementById("publish_hot_issue").innerHTML = `<div class="form-check form-switch"><input class="form-check-input" type="checkbox" role="switch" name="is_publish" id="is_publish" checked> <label class="form-check-label" for="is_publish"></label></div>`;
+                    } else {
+                        document.getElementById("publish_hot_issue").innerHTML = `<div class="form-check form-switch"><input class="form-check-input" type="checkbox" role="switch" name="is_publish" id="is_publish"> <label class="form-check-label" for="is_publish"></label></div>`;
+                    }
+                    document.getElementById("issue_datetime").value = rows[0]?.hot_issue_datetime.split('.')[0];
+                    document.getElementById("preview").innerHTML = `<img src="${rows[0]?.image}" width="180"/>`;
+
+                })
+        }
+
+        function getCategoryHotIssue() {
+            fetch('/hotissuesubcategory')
+                .then(response => response.json())
+                .then((data) => {
+                    data.forEach(element => {
+                        const choosed = (element?.id == hot_subcategory_id) ? true : false;
+                        const ddd = document.createElement('option')
+                        ddd.value = `${element?.id}-${element?.title}`;
+                        ddd.text = `${element?.title}`;
+                        ddd.selected = choosed
+                        document.getElementById("catid").append(ddd);
+                    });
+                })
+        }
+
+        function getTagging() {
+            fetch('/tagging')
+                .then(res => res.json())
+                .then((rrr) => {
+                    let ttt = "";
+                    rrr.forEach(items => {
+                        ttt += `${items?.tagging},`;
+                    });
+                    document.getElementById("tag").innerHTML = ttt;
+                    document.getElementById("tagify").value = ttt;
+                })
+        }
+
+    </script>
+</body>
+
+</html>

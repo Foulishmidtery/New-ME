@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zxx">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="" />
+    <meta name="keyword" content="" />
+    <meta name="author" content="theme_ocean" />
+    <title>KNEKS BACKEND || Dashboard</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/assets/images/favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="/assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="/assets/vendors/css/vendors.min.css">
+    <link rel="stylesheet" type="text/css" href="/assets/vendors/css/select2.min.css">
+    <link rel="stylesheet" type="text/css" href="/assets/vendors/css/select2-theme.min.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/theme.min.css" />
+    <link rel="stylesheet" type="text/css" href="/assets/vendors/css/tagify.min.css" />
+</head>
+
+<body>
+    <!--! ================================================================ !-->
+    <!--! [Start] Navigation Manu !-->
+    <!--! ================================================================ !-->
+    <script src="/nav.js"></script>
+    <!--! ================================================================ !-->
+    <!--! [End]  Navigation Manu !-->
+    <!--! ================================================================ !-->
+    <!--! ================================================================ !-->
+    <!--! [Start] Header !-->
+    <!--! ================================================================ !-->
+    <script src="/header.js"></script>
+    <!--! ================================================================ !-->
+    <!--! [Start] Main Content !-->
+    <!--! ================================================================ !-->
+    <main class="nxl-container">
+        <div class="nxl-content">
+            <!-- [ page-header ] start -->
+            <script src="/breadchumb.js"></script>
+            <div class="main-content">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <form action="/insertapidashboard" method="post">
+                            <div class="card stretch stretch-full">
+                                <div class="card-body lead-status">
+                                    <div class="mb-5 d-flex align-items-center justify-content-between">
+                                        <h5 class="fw-bold mb-0 me-4">
+                                            <span class="d-block mb-2">Tambah Data Dashboard :</span>
+                                            <span class="fs-12 fw-normal text-muted text-truncate-1-line">Silahkan
+                                                Tambah
+                                                Data Dashboard Di Bawah Ini</span>
+                                        </h5>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Menu )*</label>
+                                            <select class="form-control" name="data_type" id="data_types"
+                                                onchange="getDatasubMenu(this.value)" required>
+
+                                            </select>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Sub Menu )*</label>
+                                            <select class="form-control" name="sub_statistic" id="short_names" required>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Masukan Nama Pendek [ID] )*</label>
+                                            <input class="form-control" type="text" name="shorts_name" required>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Masukan Nama Pendek [EN] )*</label>
+                                            <input class="form-control" type="text" name="shorts_name_en" required>
+                                        </div>
+
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Masukan Nama Panjang [ID] )*</label>
+                                            <input class="form-control" type="text" name="long_name" required>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Masukan Nama Panjang [EN] )*</label>
+                                            <input class="form-control" type="text" name="long_name_en" required>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Masukan Link Data )*</label>
+                                            <input class="form-control" type="text" name="api" id="api" required>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Tagging )*</label>
+                                            <span id="tag">
+
+                                            </span>
+                                            <input name="taggings" type="text" class="tagify" id="tagify" required>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Direktorat )*</label>
+                                            <select class="form-control" name="directorat" id="mySelect" multiple
+                                                required>
+                                            </select>
+                                        </div>
+
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">KDEKS )*</label>
+                                            <select class="form-control" name="kdeks" id="provinces" multiple required>
+                                               
+                                            </select>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Tayang </label>
+                                            <!-- <input type="checkbox" name="publish" value="1" required> -->
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" role="switch"
+                                                    name="publish" id="publish">
+                                                <label class="form-check-label" for="publish"></label>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Dataset )*</label>
+                                            <select class="form-control" name="dataset" id="mySelect3"  multiple required>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4 text-left">
+                                            <label class="form-label"></label>
+                                            <input class="btn btn-primary" type="submit" value="Simpan">
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <!-- [ Main Content ] end -->
+        </div>
+        <!-- [ Footer ] start -->
+        <!-- <footer class="footer">
+            <p class="fs-11 text-muted fw-medium text-uppercase mb-0 copyright">
+                <span>Copyright ©</span>
+                <script>
+                    document.write(new Date().getFullYear());
+                </script>
+            </p>
+            <div class="d-flex align-items-center gap-4">
+                <a href="javascript:void(0);" class="fs-11 fw-semibold text-uppercase">Help</a>
+                <a href="javascript:void(0);" class="fs-11 fw-semibold text-uppercase">Terms</a>
+                <a href="javascript:void(0);" class="fs-11 fw-semibold text-uppercase">Privacy</a>
+            </div>
+        </footer> -->
+        <!-- [ Footer ] end -->
+    </main>
+
+    <script src="/assets/vendors/js/vendors.min.js"></script>
+    <script src="/assets/js/common-init.min.js"></script>
+    <script src="/assets/vendors/js/select2.min.js"></script>
+    <script src="/assets/vendors/js/select2-active.min.js"></script>
+    <script src="/assets/js/common-init.min.js"></script>
+    <script src="/assets/js/theme-customizer-init.min.js"></script>
+    <script src="/assets/vendors/js/tagify.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#mySelect').select2();
+            $('#mySelect3').select2();
+            $('#provinces').select2();
+        });
+    </script>
+</body>
+<script>
+    window.addEventListener("load", async () => {
+        const inputElm = document.querySelector('input.tagify');
+        new Tagify(inputElm);
+        await getDataMenu();
+        await getDirectorat();
+        await getTagging();
+        await getProvinces();
+        await getDataSet();
+    })
+    function getDataMenu() {
+        fetch('/data_menu')
+            .then(data => data.json())
+            .then((rows) => {
+                var eee = `<option value="0">Pilih</option>`;
+                rows.forEach((element) => {
+                    eee += `<option value="${element?.id}-${element?.title}">${element?.title}</option>`;
+                })
+                document.getElementById("data_types").innerHTML = eee;
+            })
+    }
+
+    function getDatasubMenu(e) {
+        fetch('/detail_submenu/' + e.split('-')[0])
+            .then(datas => datas.json())
+            .then((rowst) => {
+                rowst.forEach((elements) => {
+                    const dddd = document.createElement('option')
+                    dddd.value = `${elements?.short_name}`;
+                    dddd.text = `${elements?.short_name}`;
+                    document.getElementById("short_names").append(dddd);
+                })
+            })
+    }
+
+    function getDirectorat() {
+        fetch('/directorat_fe')
+            .then(res => res.json())
+            .then((qqq) => {
+                qqq.forEach(items => {
+                    const aaa = document.createElement('option')
+                    aaa.value = `${items?.id}`;
+                    aaa.text = `${items?.title}`;
+                    document.getElementById("mySelect").append(aaa);
+                });
+            })
+    }
+
+    function getTagging() {
+        fetch('/tagging')
+            .then(res => res.json())
+            .then((rrr) => {
+                let ttt = "";
+                rrr.forEach(items => {
+                    ttt += `${items?.tagging},`;
+                });
+                document.getElementById("tag").innerHTML = ttt;
+                document.getElementById("tagify").value = ttt;
+            })
+
+    }
+
+    function getProvinces() {
+        fetch('/provinces')
+            .then(response => response.json())
+            .then((data) => {
+                data.forEach(element => {
+                    const ddd = document.createElement('option')
+                    ddd.value = `${element?.id}`;
+                    ddd.text = `${element?.province_name}`;
+                    document.getElementById("provinces").append(ddd);
+                });
+            })
+    }
+
+    function getDataSet() {
+        fetch('/sourcesdata')
+            .then(res => res.json())
+            .then((qqq) => {
+                qqq.forEach(items => {
+                    const aaa = document.createElement('option')
+                    aaa.value = `${items?.id}`;
+                    aaa.text = `${items?.dataset}`;
+                    document.getElementById("mySelect3").append(aaa);
+                });
+            })
+    }    
+</script>
+
+</html>

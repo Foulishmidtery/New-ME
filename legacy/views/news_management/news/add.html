@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zxx">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="" />
+    <meta name="keyword" content="" />
+    <meta name="author" content="theme_ocean" />
+    <title>KNEKS BACKEND || Dashboard</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/assets/images/favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="/assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="/assets/vendors/css/vendors.min.css">
+    <link rel="stylesheet" type="text/css" href="/assets/vendors/css/select2.min.css">
+    <link rel="stylesheet" type="text/css" href="/assets/vendors/css/select2-theme.min.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/theme.min.css" />
+    <link rel="stylesheet" type="text/css" href="/assets/vendors/css/tagify.min.css" />
+    <script type="text/javascript" src="//js.nicedit.com/nicEdit-latest.js"></script>
+    <script type="text/javascript">
+        bkLib.onDomLoaded(function () {
+            new nicEditor({ maxHeight: 100 }).panelInstance('editor1');
+            new nicEditor({ maxHeight: 100 }).panelInstance('editor2');
+            new nicEditor({ maxHeight: 100 }).panelInstance('editor3');
+            new nicEditor({ maxHeight: 100 }).panelInstance('editor4');
+        });
+    </script>
+    <style>
+        .nicEdit-main i,
+        .nicEdit-main em {
+            font-family: inherit !important;
+            font-style: italic !important;
+            font-size: inherit !important;
+            line-height: inherit !important;
+        }
+
+        .nxl-micon i {
+            font-family: 'feather' !important;
+            font-style: normal !important;
+            font-size: 18px !important;
+            display: inline-block !important;
+        }
+    </style>
+</head>
+
+<body>
+    <!--! ================================================================ !-->
+    <!--! [Start] Navigation Manu !-->
+    <!--! ================================================================ !-->
+    <script src="/nav.js"></script>
+    <!--! ================================================================ !-->
+    <!--! [End]  Navigation Manu !-->
+    <!--! ================================================================ !-->
+    <!--! ================================================================ !-->
+    <!--! [Start] Header !-->
+    <!--! ================================================================ !-->
+    <script src="/header.js"></script>
+    <!--! ================================================================ !-->
+    <!--! [Start] Main Content !-->
+    <!--! ================================================================ !-->
+    <main class="nxl-container">
+        <div class="nxl-content">
+            <!-- [ page-header ] start -->
+            <script src="/breadchumb.js"></script>
+            <div class="main-content">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <form action="/insertnews" method="post" enctype="multipart/form-data">
+                            <!-- <input type="hidden" id="taggings" name="taggings" value=""> -->
+                            <input type="hidden" id="max_id" name="MAX_FILE_SIZE" value="50048000" />
+                            <div class="card stretch stretch-full">
+                                <div class="card-body lead-status">
+                                    <div class="mb-5 d-flex align-items-center justify-content-between">
+                                        <h5 class="fw-bold mb-0 me-4">
+                                            <span class="d-block mb-2">Tambah Berita :</span>
+                                            <span class="fs-12 fw-normal text-muted text-truncate-1-line">Silahkan
+                                                Tambah
+                                                Berita Di Bawah Ini</span>
+                                        </h5>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Judul [ID])*</label>
+                                            <input class="form-control" type="text" name="title" required>
+                                            <p>judul - 80 char</p>
+                                        </div>
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Judul [EN])*</label>
+                                            <input class="form-control" type="text" name="title_en" required>
+                                        </div>
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Kategori Berita )*</label>
+                                            <select class="form-control" name="category_id" id="cat_news" required>
+                                                <option value="0">--</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Kutipan [ID])*</label>
+                                            <textarea class="form-control" name="excerpt" id="editor1"></textarea>
+                                            <p>kutipan - 130 char</p>
+                                        </div>
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Kutipan [EN] )*</label>
+                                            <textarea class="form-control" name="excerpt_en" id="editor2"></textarea>
+                                        </div>
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Konten [ID] )*</label>
+                                            <textarea class="form-control" name="content" id="editor3"></textarea>
+                                        </div>
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Konten [EN])*</label>
+                                            <textarea class="form-control" name="content_en" id="editor4"></textarea>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Photo</label>
+                                            <input class="form-control" name="photo" id="photo" type="file"
+                                                accept="image/*" multiple onchange="upload_check()" required>
+                                            <p>Masukkan dengan file type jpg, jpeg, png. </p>
+                                            <p>Pastikan semua foto berita sudah dikumpulkan dalam satu folder di
+                                                komputer agar dapat dipilih sekaligus.</p>
+                                            <p>Min. Size: width 400px & height 300px.</p>
+                                            <p>Max. Size: width 800px & height 600px.</p>
+                                            <p>Max Upload 50 MB</p>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Tanggal Publish</label>
+                                            <input class="form-control" name="news_datetime" id="news_datetime"
+                                                type="datetime-local">
+                                        </div>
+
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Tayang</label>
+                                            <!-- <input name="is_publish" id="publish" type="radio" value="1" checked> publish
+                                            <input name="is_publish" id="publish" type="radio" value="0"> not publish -->
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" role="switch"
+                                                    name="is_publish" id="publish">
+                                                <label class="form-check-label" for="publish"></label>
+                                            </div>
+                                        </div>
+
+                                        <!-- <div class="col-lg-12 mb-4">
+                                            <label class="form-label"> Tagging</label>
+                                            <span id="tag">
+
+                                            </span>
+                                        </div> -->
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Tagging</label>
+                                            <span id="tag">
+
+                                            </span>
+                                            <input name="taggings" type="text" class="tagify" id="tagify">
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Direktorat</label>
+                                            <select class="form-control" name="directorat_id" id="mySelect" multiple
+                                                placeholder="Silahkan Pilih">
+                                                <option value="1" selected>Industri Produk Halal</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">KDEKS</label>
+                                            <!-- <select class="form-control" name="kdeks" id="provinces" required>
+                                                <option value="0"></option>
+                                            </select> -->
+                                            <select class="form-control" name="kdeks" id="mySelect2" multiple required>
+                                                <option value="11" selected>DKI Jakarta</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4 text-left">
+                                            <label class="form-label"></label>
+                                            <input class="btn btn-primary" type="submit" value="Simpan">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <!-- [ Main Content ] end -->
+        </div>
+        <!-- [ Footer ] start -->
+        <footer class="footer">
+            <p class="fs-11 text-muted fw-medium text-uppercase mb-0 copyright">
+                <span>Copyright ©</span>
+                <script>
+                    document.write(new Date().getFullYear());
+                </script>
+            </p>
+            <div class="d-flex align-items-center gap-4">
+                <a href="javascript:void(0);" class="fs-11 fw-semibold text-uppercase">Help</a>
+                <a href="javascript:void(0);" class="fs-11 fw-semibold text-uppercase">Terms</a>
+                <a href="javascript:void(0);" class="fs-11 fw-semibold text-uppercase">Privacy</a>
+            </div>
+        </footer>
+        <!-- [ Footer ] end -->
+    </main>
+
+    <script src="/assets/vendors/js/jquery.min.js"></script>
+    <script src="/assets/vendors/js/jquery.min.js"></script>
+    <script src="/assets/vendors/js/vendors.min.js"></script>
+    <script src="/assets/vendors/js/select2.min.js"></script>
+    <script src="/assets/vendors/js/select2-active.min.js"></script>
+    <script src="/assets/js/common-init.min.js"></script>
+    <script src="/assets/js/theme-customizer-init.min.js"></script>
+    <script src="/assets/vendors/js/tagify.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#mySelect').select2();
+            $('#mySelect2').select2();
+        });
+    </script>
+    <script>
+        window.addEventListener("load", async () => {
+            const inputElm = document.querySelector('input.tagify');
+            new Tagify(inputElm);
+            await getTagging();
+            await getCategoryNews();
+            await getCategoryDirectorat();
+            await getProvinces();
+            await getDates();
+            await upload_check();
+        })
+
+        function getDates() {
+            var today = new Date();
+            document.getElementById("news_datetime").value = today.getFullYear() + '-' + ('0' + (today.getMonth() + 1)).slice(-2) + '-' + ('0' + today.getDate()).slice(-2) + "T00:00";
+        }
+
+        function getTagging() {
+            fetch('/tagging')
+                .then(res => res.json())
+                .then((rrr) => {
+                    let ttt = "";
+                    rrr.forEach(items => {
+                        ttt += `${items?.tagging},`;
+                    });
+                    document.getElementById("tag").innerHTML = ttt;
+                    document.getElementById("tagify").value = ttt;
+                })
+        }
+
+        function getCategoryNews() {
+            fetch('/categories')
+                .then(response => response.json())
+                .then((data) => {
+                    data.forEach(element => {
+                        const ddd = document.createElement('option')
+                        ddd.value = `${element?.id}`;
+                        ddd.text = `${element?.title}`;
+                        document.getElementById("cat_news").append(ddd);
+                    });
+                })
+        }
+
+        function getCategoryDirectorat() {
+            fetch('/directorat_fe')
+                .then(res => res.json())
+                .then((qqq) => {
+                    qqq.forEach(items => {
+                        const aaa = document.createElement('option')
+                        aaa.value = `${items?.id}`;
+                        aaa.text = `${items?.title}`;
+                        document.getElementById("mySelect").append(aaa);
+                    });
+                })
+        }
+
+        function getProvinces() {
+            fetch('/provinces')
+                .then(response => response.json())
+                .then((data) => {
+                    data.forEach(element => {
+                        const ddd = document.createElement('option')
+                        ddd.value = `${element?.id}`;
+                        ddd.text = `${element?.province_name}`;
+                        document.getElementById("mySelect2").append(ddd);
+                    });
+                })
+        }
+
+        /*
+        function upload_check() {
+            var upl = document.getElementById("photo");
+            var max = document.getElementById("max_id").value;
+
+            if (upl.files[0].size > max || !upl.files[0].type.startsWith('image/')) {
+                alert("File too big! Or File Not Image");
+                upl.value = "";
+                return false;
+            }
+            return true;
+        };
+        */
+        function upload_check() {
+            var upl = document.getElementById("photo");
+            var max = document.getElementById("max_id").value;
+
+            for (var i = 0; i < upl.files.length; i++) {
+                if (upl.files[i].size > max || !upl.files[i].type.startsWith('image/')) {
+                    alert("File " + upl.files[i].name + " terlalu besar atau bukan gambar!");
+                    upl.value = "";
+                    return false;
+                }
+            }
+            return true;
+        };
+    </script>
+    <script>
+        document.querySelector('form').addEventListener('submit', function (e) {
+            if (nicEditors && nicEditors.editors) {
+                for (var i = 0; i < nicEditors.editors.length; i++) {
+                    nicEditors.editors[i].nicInstances.forEach(function (instance) {
+                        instance.saveContent();
+                    });
+                }
+            }
+
+            ['editor1', 'editor2', 'editor3', 'editor4'].forEach(function (id) {
+                var textarea = document.getElementById(id);
+                if (textarea) {
+                    var isi = textarea.value;
+
+                    isi = isi.replace(/<(b|strong)[^>]*>\s*<(i|em)[^>]*>/gi, '<span style="font-weight: bold; font-style: italic;">');
+                    isi = isi.replace(/<(i|em)[^>]*>\s*<(b|strong)[^>]*>/gi, '<span style="font-weight: bold; font-style: italic;">');
+                    isi = isi.replace(/<\/(i|em)>\s*<\/(b|strong)>/gi, '</span>');
+                    isi = isi.replace(/<\/(b|strong)>\s*<\/(i|em)>/gi, '</span>');
+                    isi = isi.replace(/<(i|em)[^>]*>/gi, '<span style="font-style: italic;">');
+                    isi = isi.replace(/<\/(i|em)>/gi, '</span>');
+                    isi = isi.replace(/<(b|strong)[^>]*>/gi, '<span style="font-weight: bold;">');
+                    isi = isi.replace(/<\/(b|strong)>/gi, '</span>');
+                    isi = isi.replace(/font-size[^;"]*;/gi, '');
+                    isi = isi.replace(/font-family[^;"]*;/gi, '');
+                    isi = isi.replace(/margin[^;]*;/gi, '');
+                    isi = isi.replace(/line-height[^;]*;/gi, '');
+                    isi = isi.replace(/text-align[^;]*;/gi, '');
+                    isi = isi.replace(/class="MsoNormal"/gi, '');
+
+                    textarea.value = isi;
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="zxx">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="" />
+    <meta name="keyword" content="" />
+    <meta name="author" content="theme_ocean" />
+    <title>KNEKS BACKEND || Dashboard</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/assets/images/favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="/assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="/assets/vendors/css/vendors.min.css">
+    <link rel="stylesheet" type="text/css" href="/assets/vendors/css/select2.min.css">
+    <link rel="stylesheet" type="text/css" href="/assets/vendors/css/select2-theme.min.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/theme.min.css" />
+    <link rel="stylesheet" type="text/css" href="/assets/vendors/css/tagify.min.css" />
+    <script type="text/javascript" src="//js.nicedit.com/nicEdit-latest.js"></script>
+    <script type="text/javascript">
+        bkLib.onDomLoaded(function () {
+            new nicEditor({ maxHeight: 100 }).panelInstance('editor3');
+            new nicEditor({ maxHeight: 100 }).panelInstance('editor4');
+        });
+    </script>
+    <!-- <script src="/assets/tinymce/tinymce.min.js" referrerpolicy="origin"></script>
+    <script>
+        tinymce.init({
+            selector: 'textarea',
+            height: 300,
+            menubar: false,
+            plugins: 'lists link image table code',
+            toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright | bullist numlist | code',
+            readonly: false,
+        });
+    </script> -->
+</head>
+
+<body>
+    <!--! ================================================================ !-->
+    <!--! [Start] Navigation Manu !-->
+    <!--! ================================================================ !-->
+    <script src="/nav.js"></script>
+    <!--! ================================================================ !-->
+    <!--! [End]  Navigation Manu !-->
+    <!--! ================================================================ !-->
+    <!--! ================================================================ !-->
+    <!--! [Start] Header !-->
+    <!--! ================================================================ !-->
+    <script src="/header.js"></script>
+    <!--! ================================================================ !-->
+    <!--! [Start] Main Content !-->
+    <!--! ================================================================ !-->
+    <main class="nxl-container">
+        <div class="nxl-content">
+            <!-- [ page-header ] start -->
+            <script src="/breadchumb.js"></script>
+            <div class="main-content">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <form action="/updatephoto" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="id" id="id" value="">
+                            <input type="hidden" id="max_id" name="MAX_FILE_SIZE" value="1048000" />
+                            <input type="hidden" id="users_name" name="users_name">
+                            <input type="hidden" id="users_id" name="users_id">
+                            <div class="card stretch stretch-full">
+                                <div class="card-body lead-status">
+                                    <div class="mb-5 d-flex align-items-center justify-content-between">
+                                        <h5 class="fw-bold mb-0 me-4">
+                                            <span class="d-block mb-2">Ubah Foto :</span>
+                                            <span class="fs-12 fw-normal text-muted text-truncate-1-line">Silahkan
+                                                Ubah Foto Isu Di Bawah Ini</span>
+                                        </h5>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Judul [IN] )* </label>
+                                            <input class="form-control" type="text" name="title" id="title">
+                                        </div>
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Judul [EN] )*</label>
+                                            <input class="form-control" type="text" name="title_en" id="title_en">
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Photo Preview</label>
+                                            <p id="preview"></p>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Foto )*</label>
+                                            <input class="form-control" name="photo" id="photo" type="file"
+                                                accept="image/*" onchange="upload_check()">
+                                            <p>Masukkan dengan tipe file jpg, jpeg, png. </p>
+                                            <p>Min. Size: width 400px & height 300px.</p>
+                                            <p>Max. Size: width 800px & height 600px.</p>
+                                            <p>Max Upload 1 MB</p>
+                                        </div>
+
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Konten [IN] )*</label>
+                                            <textarea class="form-control" name="content" id="editor3"></textarea>
+                                            <p id="val3"></p>
+                                        </div>
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Konten [EN] )*</label>
+                                            <textarea class="form-control" name="content_en" id="editor4"></textarea>
+                                            <!-- <p id="val4"></p> -->
+                                        </div>
+
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Tanggal )*</label>
+                                            <input class="form-control" name="photo_datetime" id="photo_datetimes"
+                                                type="datetime-local">
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Tayang</label>
+                                            <span id="publish_photo"></span>
+                                        </div>
+
+                                        <!-- <div class="col-lg-12 mb-4">
+                                            <label class="form-label"> Tagging</label>
+                                            <span id="listtag">
+
+                                            </span>
+                                        </div> -->
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Direktorat</label>
+                                            <select class="form-control" name="directorat" id="mySelect2" multiple
+                                                required>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">KDEKS</label>
+                                            <!-- <select class="form-control" name="kdeks" id="provinces" required>
+                                                <option value="0"></option>
+                                            </select> -->
+                                            <select class="form-control" name="kdeks" id="mySelect3" multiple required>
+                                                <option value="0"></option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label"> Ganti/Ubah Tagging</label>
+                                            <span id="tag">
+
+                                            </span>
+                                            <input name="taggings" type="text" class="tagify" id="tagify" required>
+                                        </div>
+
+
+                                        <div class="col-lg-12 mb-4 text-left">
+                                            <label class="form-label"></label>
+                                            <input class="btn btn-primary" type="submit" value="Simpan">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+                    </form>
+                </div>
+            </div>
+            <!-- [ Main Content ] end -->
+        </div>
+        <!-- [ Footer ] start -->
+        <!-- <footer class="footer">
+            <p class="fs-11 text-muted fw-medium text-uppercase mb-0 copyright">
+                <span>Copyright ©</span>
+                <script>
+                    document.write(new Date().getFullYear());
+                </script>
+            </p>
+            <div class="d-flex align-items-center gap-4">
+                <a href="javascript:void(0);" class="fs-11 fw-semibold text-uppercase">Help</a>
+                <a href="javascript:void(0);" class="fs-11 fw-semibold text-uppercase">Terms</a>
+                <a href="javascript:void(0);" class="fs-11 fw-semibold text-uppercase">Privacy</a>
+            </div>
+        </footer> -->
+        <!-- [ Footer ] end -->
+    </main>
+    <script src="/assets/vendors/js/jquery.min.js"></script>
+    <script src="/assets/vendors/js/vendors.min.js"></script>
+    <script src="/assets/vendors/js/select2.min.js"></script>
+    <script src="/assets/vendors/js/select2-active.min.js"></script>
+    <script src="/assets/js/common-init.min.js"></script>
+    <script src="/assets/js/theme-customizer-init.min.js"></script>
+    <script src="/assets/vendors/js/tagify.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script>
+        document.getElementById("users_name").value = `${cookie['name']}`;
+        document.getElementById("users_id").value = `${cookie['id']}`;
+        function getUrlById() {
+            const URLS = new URL(window.location.href);
+            fetch('/photodetail/' + URLS.pathname.split('/')[2])
+                .then(data => data.json())
+                .then((rows) => {
+                    // const editor1 = tinymce.get('editor1');
+                    // const editor2 = tinymce.get('editor2');
+
+                    // if (editor1 && editor2) {
+                    //     if (editor1.initialized) {
+                    //         editor1.setContent(datas?.content || '');
+                    //     } else {
+                    //         editor1.on('init', () => editor1.setContent(datas?.content || ''));
+                    //     }
+
+                    //     if (editor2.initialized) {
+                    //         editor2.setContent(datas?.content_en || '');
+                    //     } else {
+                    //         editor2.on('init', () => editor2.setContent(datas?.content_en || ''));
+                    //     }
+                    // }
+
+                    provinces_id = rows[0]?.id_province;
+                    document.getElementById("id").value = rows[0]?.id;
+                    document.getElementById("title").value = rows[0]?.title;
+                    document.getElementById("title_en").value = rows[0]?.title_en;
+                    document.getElementById("photo_datetimes").value = rows[0]?.photos_datetime.split('.')[0];
+                    document.getElementById("preview").innerHTML = `<img src="${rows[0]?.photo}" width="180"/>`;
+                    localStorage.setItem("object_dir_photos", rows[0]?.directorat)
+                    localStorage.setItem("prov_idphotos", rows[0]?.id_province);
+                    // if (rows[0]?.is_publish == 1) {
+                    nicEditors.findEditor("editor3").setContent(rows[0]?.content);
+                    nicEditors.findEditor("editor4").setContent(rows[0]?.content_en);
+                    if (rows[0]?.is_publish == 'on') {
+                        document.getElementById("publish_photo").innerHTML = `
+                                             <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" role="switch" name="is_published" id="publish" checked>
+                                                <label class="form-check-label" for="publish"></label>
+                                              </div>`;
+                    } else {
+                        document.getElementById("publish_photo").innerHTML = `
+                                             <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" role="switch" name="is_published" id="publish">
+                                                <label class="form-check-label" for="publish"></label>
+                                              </div>`;
+                    }
+                    // } else {
+                    //     document.getElementById("publish_photo").innerHTML = `<input name="is_published" id="publish" type="radio" value="1"> Publish <input name="is_published" id="publish" type="radio" value="0" checked> Not Publish`;
+                    // }
+
+                })
+        }
+
+        function getTagging() {
+            fetch('/tagging')
+                .then(res => res.json())
+                .then((rrr) => {
+                    let tttt = "";
+                    rrr.forEach(items => {
+                        // ttt += `&nbsp;<input type="checkbox" id="cek${items?.id}" name="options" value="${items?.tagging}" onchange="handleClick(${items?.id})"> &nbsp; ${items?.tagging} &nbsp;`;
+                        tttt += `${items?.tagging},`;
+                    });
+                    document.getElementById("tag").innerHTML = tttt;
+                    document.getElementById("tagify").value = tttt;
+                })
+        }
+
+        function upload_check() {
+            var upl = document.getElementById("photo");
+            var max = document.getElementById("max_id").value;
+            if (upl.files[0].size > max || !upl.files[0].type.startsWith('image/')) {
+                alert("File too big! Or File Not Image");
+                upl.value = "";
+                return false;
+            }
+
+            return true;
+        };
+        function getProvinces() {
+            fetch('/provinces')
+                .then(response => response.json())
+                .then((data) => {
+                    const getArrays = localStorage.getItem("prov_idphotos");
+                    let arrays = [];
+                    if (getArrays.length <= 1) {
+                        arrays.push(getArrays);
+                    } else {
+                        const str = getArrays.replace(/[{}"]/g, "").split(",")
+                            .map(Number)
+                            .join(",");
+                        let chars = str.split(",").map(Number);
+                        arrays.push(chars)
+                    }
+                    var opt = [];
+                    data.forEach(element => {
+                        opt.push('<option value="' + element?.id + '">' + element?.province_name + '</option>');
+                    });
+                    $('#mySelect3').empty().append(opt).trigger('change');
+                    $('#mySelect3').val(arrays[0]).trigger('change');
+
+                })
+        }
+
+        function getDirectorats() {
+            $.ajax({
+                url: '/directorat_fe',
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    const getArray = localStorage.getItem("object_dir_photos");
+                    let array = [];
+                    if (getArray.length <= 1) {
+                        array.push(getArray[0]);
+                    } else {
+                        const strings = getArray.replace(/[{}"]/g, "").split(",")
+                            .map(Number)
+                            .join(",");
+                        for (let char of strings) {
+                            if (char !== ',') {
+                                array.push(char);
+                            }
+                        }
+                    }
+                    var options = [];
+                    $.each(data, function (index, value) {
+                        options.push('<option value="' + value.id + '">' + value.title + '</option>');
+                    });
+                    $('#mySelect2').empty().append(options).trigger('change');
+                    $('#mySelect2').val(array).trigger('change');
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            const inputElm = document.querySelector('input.tagify');
+            new Tagify(inputElm);
+            $('#mySelect2').select2();
+            $('#mySelect3').select2();
+            getUrlById();
+            getTagging();
+            getDirectorats()
+            getProvinces();
+            upload_check();
+        });
+
+
+    </script>
+</body>
+
+</html>

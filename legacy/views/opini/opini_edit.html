@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="zxx">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="" />
+    <meta name="keyword" content="" />
+    <meta name="author" content="theme_ocean" />
+    <title>KNEKS BACKEND || Dashboard</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/assets/images/favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="/assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="/assets/vendors/css/vendors.min.css">
+    <link rel="stylesheet" type="text/css" href="/assets/vendors/css/select2.min.css">
+    <link rel="stylesheet" type="text/css" href="/assets/vendors/css/select2-theme.min.css">
+    <link rel="stylesheet" type="text/css" href="/assets/vendors/css/tagify.min.css" />
+    <link rel="stylesheet" type="text/css" href="/assets/css/theme.min.css" />
+    <script type="text/javascript" src="//js.nicedit.com/nicEdit-latest.js"></script>
+    <script type="text/javascript">
+        bkLib.onDomLoaded(function () {
+            new nicEditor({ maxHeight: 100 }).panelInstance('editor3');
+            new nicEditor({ maxHeight: 100 }).panelInstance('editor4');
+        });
+    </script>
+    <style>
+        .nicEdit-main i,
+        .nicEdit-main em {
+            font-family: inherit !important;
+            font-style: italic !important;
+            font-size: inherit !important;
+            line-height: inherit !important;
+        }
+
+        .nxl-micon i {
+            font-family: 'feather' !important;
+            font-style: normal !important;
+            font-size: 18px !important;
+            display: inline-block !important;
+        }
+    </style>
+</head>
+
+<body>
+    <!--! ================================================================ !-->
+    <!--! [Start] Navigation Manu !-->
+    <!--! ================================================================ !-->
+    <script src="/nav.js"></script>
+    <!--! ================================================================ !-->
+    <!--! [End]  Navigation Manu !-->
+    <!--! ================================================================ !-->
+    <!--! ================================================================ !-->
+    <!--! [Start] Header !-->
+    <!--! ================================================================ !-->
+    <script src="/header.js"></script>
+    <!--! ================================================================ !-->
+    <!--! [Start] Main Content !-->
+    <!--! ================================================================ !-->
+    <main class="nxl-container">
+        <div class="nxl-content">
+            <!-- [ page-header ] start -->
+            <script src="/breadchumb.js"></script>
+            <div class="main-content">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <form action="/updateopini" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="id" id="id" value="">
+                            <input type="hidden" id="users_name" name="users_name">
+                            <input type="hidden" id="users_id" name="users_id">
+                            <div class="card stretch stretch-full">
+                                <div class="card-body lead-status">
+                                    <div class="mb-5 d-flex align-items-center justify-content-between">
+                                        <h5 class="fw-bold mb-0 me-4">
+                                            <span class="d-block mb-2"> Ubah OPINI :</span>
+                                            <span class="fs-12 fw-normal text-muted text-truncate-1-line">Silahkan
+                                                Ubah
+                                                OPINI Di Bawah Ini</span>
+                                        </h5>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Judul [ID] )*</label>
+                                            <input class="form-control" type="text" name="title" id="title" required>
+                                        </div>
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Judul [EN] )*</label>
+                                            <input class="form-control" type="text" id="title_en" name="title_en"
+                                                required>
+                                        </div>
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Konten [ID] )*</label>
+                                            <textarea class="form-control" name="content" id="editor3"></textarea>
+                                        </div>
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Konten [EN] )*</label>
+                                            <textarea class="form-control" name="content_en" id="editor4"></textarea>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label"> Tanggal )* </label>
+                                            <input class="form-control" type="date" id="tanggal_opini"
+                                                name="tanggal_opini" required>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Tayang / Konsep</label>
+                                            <span id="publish_opini"></span>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Direktorat )*</label>
+                                            <select class="form-control" name="directorat" id="mySelect2" multiple
+                                                required>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">KDEKS )*</label>
+                                            <select class="form-control" name="kdeks" id="mySelect3" multiple required>
+                                                <option value="0"></option>
+                                            </select>
+                                        </div>
+
+                                        <!-- <div class="col-lg-12 mb-4" id="webidentity">
+
+                                        </div> -->
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Tagging</label>
+                                            <span id="tag">
+
+                                            </span>
+                                            <input name="taggings" type="text" class="tagify" id="tagify" required>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Photo</label>
+                                            <div id="image_opini"></div>
+                                        </div>
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Photo</label>
+                                            <input type="file" class="form-control" name="image" id="image">
+                                            <small class="text-danger mt-1 d-block"><i>* Maksimal ukuran file 300KB</i></small>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4 text-left">
+                                            <label class="form-label"></label>
+                                            <button class="btn btn-primary" type="submit">Simpan</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <!-- [ Main Content ] end -->
+        </div>
+        <!-- [ Footer ] start -->
+        <!-- <footer class="footer">
+            <p class="fs-11 text-muted fw-medium text-uppercase mb-0 copyright">
+                <span>Copyright ©</span>
+                <script>
+                    document.write(new Date().getFullYear());
+                </script>
+            </p>
+            <div class="d-flex align-items-center gap-4">
+                <a href="javascript:void(0);" class="fs-11 fw-semibold text-uppercase">Help</a>
+                <a href="javascript:void(0);" class="fs-11 fw-semibold text-uppercase">Terms</a>
+                <a href="javascript:void(0);" class="fs-11 fw-semibold text-uppercase">Privacy</a>
+            </div>
+        </footer> -->
+        <!-- [ Footer ] end -->
+    </main>
+
+    <script src="/assets/vendors/js/vendors.min.js"></script>
+    <script src="/assets/js/common-init.min.js"></script>
+    <script src="/assets/vendors/js/select2.min.js"></script>
+    <script src="/assets/vendors/js/select2-active.min.js"></script>
+    <script src="/assets/js/common-init.min.js"></script>
+    <script src="/assets/js/theme-customizer-init.min.js"></script>
+    <script src="/assets/vendors/js/tagify.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script>
+        document.getElementById("users_name").value = `${cookie['name']}`;
+        document.getElementById("users_id").value = `${cookie['id']}`;
+
+        // Validasi ukuran file gambar maksimal 300KB
+        document.getElementById('image').addEventListener('change', function () {
+            const maxSize = 300 * 1024; // 300KB dalam bytes
+            if (this.files[0].size > maxSize) {
+                swal("Gagal!", "Ukuran file foto tidak boleh lebih dari 300KB!", "error"); // Menggunakan sweetalert yang sudah ada di HTML Anda
+                this.value = ''; // Reset file input
+            }
+        });
+
+        function getUrlById() {
+            const URLS = new URL(window.location.href);
+            fetch('/api_opini_detail/' + URLS.pathname.split('/')[2])
+                .then(data => data.json())
+                .then((rows) => {
+                    document.getElementById("id").value = rows[0]?.id;
+                    document.getElementById("title").value = rows[0]?.title;
+                    document.getElementById("title_en").value = rows[0]?.title_en;
+                    nicEditors.findEditor("editor3").setContent(rows[0]?.content);
+                    nicEditors.findEditor("editor4").setContent(rows[0]?.content_en);
+                    document.getElementById("image_opini").innerHTML = `<img src="${rows[0]?.images}" width="100">`;
+                    const tgl = new Date(rows[0]?.date_created);
+                    document.getElementById("tanggal_opini").value = tgl.toLocaleDateString('en-CA');
+                    localStorage.setItem("object_dir", rows[0]?.directorat)
+                    localStorage.setItem("prov_idkdeks", rows[0]?.id_province);
+                    if (rows[0]?.is_publish == 'on') {
+                        document.getElementById("publish_opini").innerHTML = ` 
+                                             <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" role="switch" name="is_published" id="publish" checked>
+                                                <label class="form-check-label" for="publish"></label>
+                                              </div>`;
+                    } else {
+                        document.getElementById("publish_opini").innerHTML = ` 
+                                             <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" role="switch" name="is_published" id="publish" checked>
+                                                <label class="form-check-label" for="publish"></label>
+                                              </div>`;
+                    }
+
+                })
+        }
+        function getTagging() {
+            fetch('/tagging')
+                .then(res => res.json())
+                .then((rrr) => {
+                    let ttt = "";
+                    rrr.forEach(items => {
+                        ttt += `${items?.tagging},`;
+                    });
+                    document.getElementById("tag").innerHTML = ttt;
+                    document.getElementById("tagify").value = ttt;
+                })
+        }
+
+        function getProvinces() {
+            fetch('/provinces')
+                .then(response => response.json())
+                .then((data) => {
+                    const getArrays = localStorage.getItem("prov_idkdeks");
+                    let arrays = [];
+                    if (getArrays.length <= 1) {
+                        arrays.push(getArrays);
+                    } else {
+                        const str = getArrays.replace(/[{}"]/g, "").split(",")
+                            .map(Number)
+                            .join(",");
+                        let chars = str.split(",").map(Number);
+                        arrays.push(chars)
+                    }
+                    var opt = [];
+                    data.forEach(element => {
+                        opt.push('<option value="' + element?.id + '">' + element?.province_name + '</option>');
+                    });
+                    $('#mySelect3').empty().append(opt).trigger('change');
+                    $('#mySelect3').val(arrays[0]).trigger('change');
+
+                })
+        }
+
+        function getDirectorats() {
+            $.ajax({
+                url: '/directorat_fe',
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    const getArray = localStorage.getItem("object_dir");
+                    let array = [];
+                    if (getArray.length <= 1) {
+                        array.push(getArray[0]);
+                    } else {
+                        const strings = getArray.replace(/[{}"]/g, "").split(",")
+                            .map(Number)
+                            .join(",");
+                        for (let char of strings) {
+                            if (char !== ',') {
+                                array.push(char);
+                            }
+                        }
+                    }
+                    var options = [];
+                    $.each(data, function (index, value) {
+                        options.push('<option value="' + value.id + '">' + value.title + '</option>');
+                    });
+                    $('#mySelect2').empty().append(options).trigger('change');
+                    $('#mySelect2').val(array).trigger('change');
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            const inputElm = document.querySelector('input.tagify');
+            new Tagify(inputElm);
+            getUrlById()
+            getTagging()
+            getProvinces();
+            getDirectorats();
+            $('#mySelect2').select2();
+            $('#mySelect3').select2();
+        });
+    </script>
+    <script>
+        document.querySelector('form').addEventListener('submit', function (e) {
+            if (nicEditors && nicEditors.editors) {
+                for (var i = 0; i < nicEditors.editors.length; i++) {
+                    nicEditors.editors[i].nicInstances.forEach(function (instance) {
+                        instance.saveContent();
+                    })
+                }
+            }
+
+            ['editor3', 'editor4'].forEach(function (id) {
+                var textarea = document.getElementById(id);
+                if (textarea) {
+                    var isi = textarea.value;
+
+                    isi = isi.replace(/<(b|strong)[^>]*>\s*<(i|em)[^>]*>/gi, '<span style="font-weight: bold; font-style: italic;">');
+                    isi = isi.replace(/<(i|em)[^>]*>\s*<(b|strong)[^>]*>/gi, '<span style="font-weight: bold; font-style: italic;">');
+                    isi = isi.replace(/<\/(i|em)>\s*<\/(b|strong)>/gi, '</span>');
+                    isi = isi.replace(/<\/(b|strong)>\s*<\/(i|em)>/gi, '</span>');
+                    isi = isi.replace(/<(i|em)[^>]*>/gi, '<span style="font-style: italic;">');
+                    isi = isi.replace(/<\/(i|em)>/gi, '</span>');
+                    isi = isi.replace(/<(b|strong)[^>]*>/gi, '<span style="font-weight: bold;">');
+                    isi = isi.replace(/<\/(b|strong)>/gi, '</span>');
+                    isi = isi.replace(/font-size[^;"]*;/gi, '');
+                    isi = isi.replace(/font-family[^;"]*;/gi, '');
+                    isi = isi.replace(/margin[^;]*;/gi, '');
+                    isi = isi.replace(/line-height[^;]*;/gi, '');
+                    isi = isi.replace(/text-align[^;]*;/gi, '');
+                    isi = isi.replace(/class="MsoNormal"/gi, '');
+
+                    textarea.value = isi;
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,32 @@
+stages:
+  - install
+  - test
+  - deploy
+
+# ... (stage install dan test tetap sama seperti sebelumnya)
+
+deploy_vps:
+  stage: deploy
+  image: alpine:latest
+  before_script:
+    # Menginstall ssh-agent agar bisa melakukan koneksi SSH
+    - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    # Memasukkan private key ke runner
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    # Menambahkan server ke daftar known_hosts agar koneksi tidak terputus (disable host key checking)
+    - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+
+  script:
+    - |
+      ssh -p 2212 -o IdentitiesOnly=yes $SERVER_USER@$SERVER_IP "
+        cd /var/www/html/webdevkneks &&
+        git pull origin master &&
+        npm ci --omit=dev &&
+        npm run build &&
+        pm2 reload ecosystem.config.js || pm2 start ecosystem.config.js
+      "
+  only:
+    - master

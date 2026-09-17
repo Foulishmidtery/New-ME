@@ -1,0 +1,34 @@
+# Mendefinisikan tahapan pipeline
+stages:
+  - build
+  - test
+  - deploy
+
+# Job 1: Build
+build_project:
+  stage: build
+  tags:
+    - shell # Ini harus cocok dengan tag yang Anda buat saat registrasi runner
+  script:
+    - echo "Memulai proses build..."
+    - echo "Kompilasi kode berhasil."
+
+# Job 2: Test
+test_project:
+  stage: test
+  tags:
+    - shell
+  script:
+    - echo "Menjalankan unit test..."
+    - echo "Semua test lulus!"
+
+# Job 3: Deploy
+deploy_project:
+  stage: deploy
+  tags:
+    - shell
+  only:
+    - master # Job ini hanya berjalan jika ada perubahan di branch master/main
+  script:
+    - echo "Mendeploy aplikasi ke server produksi..."
+    - echo "Deploy selesai."

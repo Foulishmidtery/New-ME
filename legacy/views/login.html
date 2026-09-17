@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<!-- saved from url=(0027)/login -->
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#000000">
+  <meta name="description" content="Web site created using node js">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/image/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="/assets/images/favicon.ico">
+
+  <link rel="preconnect" as="style" href="https://fonts.googleapis.com/">
+  <link rel="preconnect" as="style" href="https://fonts.gstatic.com/" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+
+  <link rel="stylesheet" type="text/css" href="/style/vendor/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="/style/vendor/reey-font/stylesheet.css">
+  <link rel="stylesheet" type="text/css" href="/style/vendor/font-awesome/css/all.min.css">
+  <link rel="stylesheet" type="text/css" href="/style/vendor/flaticon/css/flaticon_towngov.css">
+
+  <link rel="stylesheet" type="text/css" href="/style/css/style.css">
+
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <title>KNEKS BACKEND APPS</title>
+
+</head>
+
+<body class="pace-done pace-done loaded">
+  <div class="wrappers">
+    <div class="row">
+      <div class="col-lg-8 col-md-6 d-none d-md-block ">
+        <div class=" m-5"><img src="/style/image/logo-login.svg" alt="logoLogin"></div>
+        <div class="text-center gb-login" id="gbrs"></div>
+      </div>
+      <div class="col-lg-4 col-md-6  col-sm-12 right ">
+        <div class="input-box">
+          <header>APLIKASI KNEKS</header>
+          <h5>LOGIN PENGGUNA</h5>
+          <!-- <h6 id="ips" align="center"></h6> -->
+          <!-- <form class="sign-in-form" action="/act_login" method="post"> -->
+          <p id="errorMessage"></p>
+          <form class="sign-in-form" method="POST" onsubmit="do_login(); return false;">
+            <input type="hidden" id="ip_address" name="ip_address" value="" />
+            <div class="input-field mb-4"><i class="fas fa-user"></i><input type="text" placeholder="Masukkan Email"
+                id="email" name="email" value="" required></div>
+            <div class="input-field mb-4"><i class="fas fa-lock"></i><input type="password"
+                placeholder="Masukkan Kata Sandi" id="password" name="password" value="" required><span
+                class="toggle-password"><i id="texts" onclick="changeToText()" class="fas fa-eye"></i></span><span
+                class="toggle-password"><i onclick="changeToPassword()" id="passwords" class="fas fa-eye-slash"
+                  style="display: none;"></i></span></div><input type="submit" class="btn-login solid" value="Masuk">
+            <div class="text-center"></div>
+          </form>
+          <button type="button" class="btn-login solid" onclick="window.location.href='/register'"> Mendaftar </button>
+          <button type="button" class="btn-login solid"
+            onclick="window.location.href='https://sso.kneks.go.id/login?from=https://kneks.go.id'"> Masuk
+            Dengan
+            SSO </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+</body>
+<script>
+  window.addEventListener("load", async (event) => {
+    await getImageLogin();
+    await checkIP();
+    await checkKuki();
+  })
+
+  function getImageLogin() {
+    fetch('/login_banners').then(response => response.json()).then((rows) => {
+      if (rows[0]?.path == undefined || rows[0]?.path == "" || rows[0]?.path == null) {
+        // document.getElementById("gbrs").setAttribute('src', '/style/image/gbr-login.png');
+        document.getElementById("gbrs").innerHTML = `<img src="/style/image/gbr-login.png" width="60%" loading="lazy">`;
+      } else {
+        // document.getElementById("gbrs").setAttribute('src', rows[0]?.path);
+        document.getElementById("gbrs").innerHTML = `<img src="${rows[0]?.path}" alt="imgLogin" width="60%" loading="lazy">`;
+      }
+    })
+  }
+
+  function checkKuki() {
+    let kuki = {};
+    var a = document.cookie.split(";");
+    for (var i = 0; i < a.length; i++) {
+      var b = a[i].split("=");
+      var [key, value] = b;
+      kuki[key.trim()] = value;
+    }
+    if (kuki['name'] === "" || kuki['name'] === undefined) {
+      console.log(kuki['name'] ?? "Tidak Ada Kuki!")
+    } else {
+      console.log(kuki['name'] ?? "Tidak Ada Kuki!")
+      window.location.href = '/home';
+    }
+  }
+
+  function checkIP() {
+    try {
+      fetch('https://api.ipify.org/?format=json')
+        .then(response => response.json())
+        .then((data) => {
+          document.getElementById('ip_address').value = data.ip;
+          // document.getElementById('ips').innerText = "Ip Anda :" + data.ip;
+        })
+
+    } catch (error) {
+      console.error('Error fetching IP address:', error);
+    }
+  }
+
+  function changeToText() {
+    document.getElementById("password").type = 'text';
+    document.getElementById("texts").style = 'display:none';
+    document.getElementById("passwords").style = 'display:block';
+  }
+
+  function changeToPassword() {
+    document.getElementById("password").type = 'password';
+    document.getElementById("texts").style = 'display:block';
+    document.getElementById("passwords").style = 'display:none';
+  }
+
+
+  async function do_login() {
+    const passwd = document.getElementById("password").value;
+    const errorMessages = document.getElementById("errorMessage");
+    const alphanumericRegex = /^[a-zA-Z0-9@#$]{3,16}$/;
+    if (passwd && !alphanumericRegex.test(passwd)) {
+      errorMessages.innerHTML = `<font color="red">Panjang Karakter Antara Min,3 Max,16 dan Gunakan Simbol Untuk Memperkuat Password Anda</font>`;
+    } else {
+      const em = document.getElementById("email").value;
+      const pw = document.getElementById("password").value;
+      const ips_address = document.getElementById("ip_address").value;
+      try {
+        await fetch('/do_login', {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: em, password: pw, ip_address: ips_address }),
+        })
+          .then(response => response.json())
+          .then((data) => {
+            if (data?.success == "true") {
+              window.location.href = "/home";
+            } else if (data?.success == "false") {
+              swal({
+                title: "Login Gagal",
+                text: "Email atau password tidak sesuai.",
+                icon: "error",
+              }).then(function () {
+                window.location.href = "/";
+              });
+            // } else if (data?.success == "pending") {
+            //   swal({
+            //     title: "Login Tertunda",
+            //     text: "Saat ini Anda belum dapat login karena alamat IP Anda belum terdaftar ( whitelist ) di sistem kami. Silakan menekan tombol di bawah ini untuk melakukan permintaan whitelist alamat IP. Anda dapat login jika permintaan Anda sudah disetujui oleh administrator sistem.",
+            //     icon: "error",
+            //   }).then(function () {
+            //     window.location.href = "/";
+            //   });
+            // } else if (data?.success == "eror") {
+            //   swal({
+            //     title: "Terjadi Kesalahan Error",
+            //     text: "Login Gagal , Gagal Insert Ip Address",
+            //     icon: "error",
+            //   }).then(function () {
+            //     window.location.href = "/";
+            //   });
+            } else if (data?.success == "super") {
+              swal({
+                title: "Login Super Admin",
+                text: "Silahkan Klik Tombol Di Bawah Untuk Redirect Ke URL Super Admin",
+                icon: "success",
+              }).then(function () {
+                window.location.href = "https://superadmin.rifhandi.com";
+              });
+            }
+          })
+      } catch (error) {
+        swal({
+          title: "Login Failed",
+          text: error.message,
+          icon: "error",
+        }).then(function () {
+          window.location.href = "/";
+        });
+      }
+    }
+  }
+
+</script>
+
+</html>

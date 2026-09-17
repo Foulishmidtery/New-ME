@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zxx">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="" />
+    <meta name="keyword" content="" />
+    <meta name="author" content="theme_ocean" />
+    <title>KDEKS BACKEND || Dashboard</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/assets/images/favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="/assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="/assets/vendors/css/vendors.min.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/theme.min.css" />
+    <script type="text/javascript" src="//js.nicedit.com/nicEdit-latest.js"></script>
+    <script type="text/javascript">
+        bkLib.onDomLoaded(function () {
+            // new nicEditor({ maxHeight: 100 }).panelInstance('editor1');
+            // new nicEditor({ maxHeight: 100 }).panelInstance('editor2');
+            new nicEditor({ maxHeight: 100 }).panelInstance('editor3');
+            new nicEditor({ maxHeight: 100 }).panelInstance('editor4');
+        });
+    </script>
+</head>
+
+<body>
+    <!--! ================================================================ !-->
+    <!--! [Start] Navigation Manu !-->
+    <!--! ================================================================ !-->
+    <script src="/nav.js"></script>
+    <!--! ================================================================ !-->
+    <!--! [End]  Navigation Manu !-->
+    <!--! ================================================================ !-->
+    <!--! ================================================================ !-->
+    <!--! [Start] Header !-->
+    <!--! ================================================================ !-->
+    <script src="/header.js"></script>
+    <!--! ================================================================ !-->
+    <!--! [Start] Main Content !-->
+    <!--! ================================================================ !-->
+    <main class="nxl-container">
+        <div class="nxl-content">
+            <!-- [ page-header ] start -->
+            <script src="/breadchumb.js"></script>
+            <div class="main-content">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <form action="/updatekdeks" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="id" id="id" value="">
+                            <input type="hidden" id="web_identity" name="web_identity" value="kdeks">
+                            <div class="card stretch stretch-full">
+                                <div class="card-body lead-status">
+                                    <div class="mb-5 d-flex align-items-center justify-content-between">
+                                        <h5 class="fw-bold mb-0 me-4">
+                                            <span class="d-block mb-2">Ubah Kdeks:</span>
+                                            <span class="fs-12 fw-normal text-muted text-truncate-1-line">Silahkan
+                                                Ubah
+                                                Kdeks Di Bawah Ini</span>
+                                        </h5>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Nama )*</label>
+                                            <input class="form-control" type="text" name="title" id="title" required>
+                                        </div>
+                                        <!-- <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Judul [EN] )*</label>
+                                            <input class="form-control" type="text" name="title_en" id="title_en"
+                                                required>
+                                        </div> -->
+
+                                        <!-- <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Tentang [ID] )*</label>
+                                            <textarea class="form-control" name="abouts" id="editor1"></textarea>
+                                        </div>
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Tentang [EN] )*</label>
+                                            <textarea class="form-control" name="abouts_en" id="editor2"></textarea>
+                                        </div> -->
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Provinsi )*</label>
+                                            <select class="form-control" name="id_province" id="provincesss" required>
+                                                <option value="0"> Pilih </option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Nama Pejabat</label>
+                                            <input class="form-control" type="text" name="officials" id="officials1">
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label"> Tentang </label>
+                                            <textarea class="form-control" name="abouts" id="editor3"> </textarea>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label"> Sejarah </label>
+                                            <textarea class="form-control" name="historys" id="editor4"> </textarea>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label"> Logo </label>
+                                            <span id="images"></span>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label"> Logo</label>
+                                            <input type="file" class="form-control" name="photo" id="photo">
+                                            <p>Masukkan dengan tipe file jpg, jpeg, png. </p>
+                                            <p>Min. Size: width 400px & height 300px.</p>
+                                            <p>Max Upload 1 MB</p>
+                                        </div>
+
+                                        <!-- <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Sejarah [ID] )*</label>
+                                            <textarea class="form-control" name="historys" id="editor3"></textarea>
+                                        </div>
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Sejarah [EN] )*</label>
+                                            <textarea class="form-control" name="historys_en" id="editor4"></textarea>
+                                        </div> -->
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Struktur</label>
+                                            <div id="structure_preview"></div>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Struktur</label>
+                                            <input class="form-control" type="file" name="structure" id="structure">
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Sk</label>
+                                            <div id="sk_preview"></div>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Sk</label>
+                                            <input class="form-control" type="file" name="sk" id="sk"
+                                                accept="application/pdf">
+                                            <p>Masukkan dengan tipe file pdf</p>
+                                            <p>Max Upload 2 MB</p>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Twitter</label>
+                                            <input class="form-control" type="text" name="twitter" id="twitter1">
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Facebook</label>
+                                            <input class="form-control" type="text" name="facebook" id="facebook1">
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Linkedin</label>
+                                            <input class="form-control" type="text" name="linkedin" id="linkedin1">
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Instagram</label>
+                                            <input class="form-control" type="text" name="instagram" id="instagram1">
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Youtube</label>
+                                            <input class="form-control" type="text" name="youtube" id="youtube1">
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Alamat</label>
+                                            <input class="form-control" type="text" name="address" id="address1">
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">No. Telepon</label>
+                                            <input class="form-control" type="text" name="phone_number"
+                                                id="phone_number1">
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">No. Fax</label>
+                                            <input class="form-control" type="text" name="fax" id="fax1">
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Email</label>
+                                            <input class="form-control" type="email" name="email" id="email1">
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Maps</label>
+                                            <input class="form-control" type="text" name="maps" id="maps1">
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4 text-left">
+                                            <label class="form-label"></label>
+                                            <button class="btn btn-primary" type="submit">Simpan</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- [ Main Content ] end -->
+        </div>
+        <!-- [ Footer ] start -->
+        <!-- <footer class="footer">
+            <p class="fs-11 text-muted fw-medium text-uppercase mb-0 copyright">
+                <span>Copyright ©</span>
+                <script>
+                    document.write(new Date().getFullYear());
+                </script>
+            </p>
+            <div class="d-flex align-items-center gap-4">
+                <a href="javascript:void(0);" class="fs-11 fw-semibold text-uppercase">Help</a>
+                <a href="javascript:void(0);" class="fs-11 fw-semibold text-uppercase">Terms</a>
+                <a href="javascript:void(0);" class="fs-11 fw-semibold text-uppercase">Privacy</a>
+            </div>
+        </footer> -->
+        <!-- [ Footer ] end -->
+    </main>
+
+    <script src="/assets/vendors/js/vendors.min.js"></script>
+    <script src="/assets/js/common-init.min.js"></script>
+    <script src="/assets/js/theme-customizer-init.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+</body>
+<script>
+    window.addEventListener("load", async () => {
+        let id_prov;
+        await getUrlById();
+        await getProvinces();
+    })
+    function getUrlById() {
+        const URLS = new URL(window.location.href);
+        fetch('/detail_kdeks/' + URLS.pathname.split('/')[2])
+            .then(data => data.json())
+            .then((rows) => {
+                console.log(rows[0]?.facebook)
+                id_prov = rows[0]?.id_province;
+                document.getElementById("id").value = rows[0]?.id;
+                document.getElementById("title").value = rows[0]?.title;
+                document.getElementById("officials1").value = rows[0]?.officials || "";
+                // document.getElementById("title_en").value = rows[0]?.title_en;
+                // nicEditors.findEditor("editor1").setContent(rows[0]?.abouts);
+                // nicEditors.findEditor("editor2").setContent(rows[0]?.abouts_en);
+                nicEditors.findEditor("editor3").setContent(rows[0]?.abouts);
+                nicEditors.findEditor("editor4").setContent(rows[0]?.historys);
+                document.getElementById("images").innerHTML = "URL:" + rows[0]?.images;
+                document.getElementById("structure_preview").innerHTML = "URL:" + rows[0]?.structure;
+                document.getElementById("sk_preview").innerHTML = "URL:" + rows[0]?.sk;
+                document.getElementById("twitter1").value = rows[0]?.twitter;
+                document.getElementById("facebook1").value = rows[0]?.facebook;
+                document.getElementById("linkedin1").value = rows[0]?.linkedin;
+                document.getElementById("instagram1").value = rows[0]?.instagram;
+                document.getElementById("youtube1").value = rows[0]?.youtube;
+                document.getElementById("address1").value = rows[0]?.address;
+                document.getElementById("phone_number1").value = rows[0]?.phone_number;
+                document.getElementById("fax1").value = rows[0]?.fax;
+                document.getElementById("email1").value = rows[0]?.email;
+                document.getElementById("maps1").value = rows[0]?.maps;
+
+                // if (rows[0]?.tag == 'about') {
+                //     document.getElementById("tags").innerHTML = `
+                //       <option value="about" selected> About </option>
+                //       <option value="history"> History </option>`;
+                // } else {
+                //     document.getElementById("tags").innerHTML = `
+                //       <option value="about"> About </option>
+                //       <option value="history" selected> History </option>`;
+                // }
+            })
+    }
+
+    function getProvinces() {
+        fetch('/provinces')
+            .then(response => response.json())
+            .then((data) => {
+                data.forEach(element => {
+                    const choosed = (element?.id == id_prov) ? true : false;
+                    const ddd = document.createElement('option')
+                    ddd.value = `${element?.id}-${element?.province_name}`;
+                    ddd.text = `${element?.province_name}`;
+                    ddd.selected = choosed
+                    document.getElementById("provincesss").append(ddd);
+                });
+            })
+    }
+</script>
+
+</html>

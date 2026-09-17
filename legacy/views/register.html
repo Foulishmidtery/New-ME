@@ -1,0 +1,304 @@
+<html>
+
+<head>
+    <title>WEB REGISTERASI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="icon" type="image/png" href="/assets/images/favicon.ico">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #e0f7e9, #a8e6cf);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: url('assets/images/background.png');
+            /* added this line */
+            background-size: cover;
+            /* added this line */
+            background-position: center;
+            /* added this line */
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 80%;
+        }
+
+        .title {
+            font-size: 3em;
+            color: #1a73e8;
+        }
+
+        .login-box {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 300px;
+            text-align: center;
+        }
+
+        .login-box h2 {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            font-weight: 700;
+            font-size: 36px;
+            line-height: 49px;
+            margin: 0 0 20px;
+            color: #146AA4;
+        }
+
+        .login-box h3 {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            font-weight: 400;
+            font-size: 15px;
+            line-height: 17px;
+            margin: 0 0 20px;
+            color: #146AA4;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 10px 10px 10px 40px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            background-color: #EEF5FF;
+            /* added this line */
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #1a73e8;
+            font-size: 1.2em;
+        }
+
+        .login-box button {
+            width: 180px;
+            height: 40px;
+            top: 393px;
+            left: 166.5px;
+            gap: 0px;
+            border-radius: 10px 0px 0px 0px;
+            opacity: 0px;
+
+            background: #146AA4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        .login-box a {
+            display: block;
+            margin-top: 10px;
+            color: #146AA4;
+            text-decoration: none;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0, 0, 0);
+            background-color: rgba(0, 0, 0, 0.4);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="title">PENDAFTARAN PENGGUNA</div>
+        <div class="login-box">
+            <h2>Selamat Datang</h2>
+            <h3>PENDAFTARAN</h3>
+            <!-- <form class="sign-in-form" action="/insertusers" method="post"> -->
+            <p id="errorMessage"></p>
+            <form class="sign-in-form" method="post" onsubmit="cekRegistered(); return false;">
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" placeholder="Nama Pengguna" name="username" id="username" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-envelope-square"></i>
+                    <input type="email" placeholder="Email" name="email" id="email" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" placeholder="Password" name="password" id="password" required>
+                </div>
+
+                <div class="input-group">
+                    <select placeholder="Direktorat" name="direktorat" id="direktorat"
+                        style="width: 100%; padding: 7px; border-radius: 10px; border: 1px solid #1a73e8; color: #1a73e8;"
+                        required>
+                        <option value="--">Pilih Direktorat</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <select placeholder="Kdeks" name="kdeks" id="kdeks"
+                        style="width: 100%; padding: 7px; border-radius: 10px; border: 1px solid #1a73e8; color: #1a73e8;"
+                        required>
+                        <option value="--">Pilih KDEKS</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <select placeholder="Instansi" name="instansi" id="instansi"
+                        style="width: 100%; padding: 7px; border-radius: 10px; border: 1px solid #1a73e8; color: #1a73e8;">
+                        <option value="--">Pilih Instansi</option>
+                    </select>
+                </div>
+
+                <button id="loginBtn" type="submit">DAFTAR</button>
+            </form>
+        </div>
+
+    </div>
+
+</body>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script>
+    window.addEventListener("load", async () => {
+        await getInstansi();
+        await getProvinces();
+        await getCategoryDirectorat();
+    })
+
+    function getCategoryDirectorat() {
+        fetch('/directorat_fe')
+            .then(res => res.json())
+            .then((qqq) => {
+                qqq.forEach(items => {
+                    const aaa = document.createElement('option')
+                    aaa.value = `${items?.id}`;
+                    aaa.text = `${items?.title}`;
+                    document.getElementById("direktorat").append(aaa);
+                });
+            })
+    }
+
+    function getInstansi() {
+        const URLS = new URL(window.location.href);
+        fetch('/institutions')
+            .then(data => data.json())
+            .then((rows) => {
+                rows.forEach(items => {
+                    const aaa = document.createElement('option')
+                    aaa.value = `${items?.id}`;
+                    aaa.text = `${items?.name}`;
+                    document.getElementById("instansi").append(aaa);
+                });
+            })
+    }
+
+    function getProvinces() {
+        fetch('/provinces')
+            .then(response => response.json())
+            .then((data) => {
+                data.forEach(element => {
+                    const ddd = document.createElement('option')
+                    ddd.value = `${element?.id}`;
+                    ddd.text = `${element?.province_name}`;
+                    document.getElementById("kdeks").append(ddd);
+                });
+            })
+    }
+
+
+    function cekRegistered() {
+        const passwd = document.getElementById("password").value;
+        const errorMessages = document.getElementById("errorMessage");
+        const alphanumericRegex = /^[a-zA-Z0-9@#$]{3,10}$/;
+        if (passwd && !alphanumericRegex.test(passwd)) {
+            errorMessages.innerHTML = `<font color="red">Panjang Karakter Antara Min,3 Max,10 dan Gunakan Simbol Untuk Memperkuat Password Anda</font>`;
+        } else {
+            const usernames = document.getElementById("username").value;
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            var username = usernames;
+            try {
+                fetch('/insertreg', {
+                    method: "POST",
+                    headers: { "Access-Control-Allow-Origin": "*", "Content-type": "application/json" },
+                    body: JSON.stringify({ username: username, email: email, password: password }),
+                })
+                    .then(response => response.json())
+                    .then((data) => {
+                        if (data?.success) {
+                            swal({
+                                title: "Register Succes",
+                                text: "Silahkan Tunggu Validasi atau Approval Data Dari Admin, Untuk Mengakses Aplikasi",
+                                icon: "success",
+                            }).then(function () {
+                                window.location.reload();
+                            });
+                        } else {
+                            swal({
+                                title: "Login Failed",
+                                text: "Failed!",
+                                icon: "error",
+                            }).then(function () {
+                                window.location.reload();
+                            });
+                        }
+                    })
+            } catch (error) {
+                swal({
+                    title: "Login Failed",
+                    text: error.message,
+                    icon: "error",
+                }).then(function () {
+                    window.location.reload();
+                });
+            }
+        }
+    }
+</script>
+
+</html>

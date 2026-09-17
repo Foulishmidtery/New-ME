@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zxx">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="" />
+    <meta name="keyword" content="" />
+    <meta name="author" content="theme_ocean" />
+    <title>KNEKS BACKEND || Dashboard</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/assets/images/favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="/assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="/assets/vendors/css/vendors.min.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/theme.min.css" />
+</head>
+
+<body>
+    <!-- Navigation & Header -->
+    <script src="/nav.js"></script>
+    <script src="/header.js"></script>
+
+    <main class="nxl-container">
+        <div class="nxl-content">
+            <!-- [ page-header ] start -->
+            <script src="/breadchumb.js"></script>
+            <div class="main-content">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <form action="/updatezonakhas" method="post">
+                            <input type="hidden" id="id" name="id" value="">
+                            <div class="card stretch stretch-full">
+                                <div class="card-body lead-status">
+                                    <div class="mb-5 d-flex align-items-center justify-content-between">
+                                        <h5 class="fw-bold mb-0 me-4">
+                                            <span class="d-block mb-2">Ubah Zona Khas :</span>
+                                            <span class="fs-12 fw-normal text-muted text-truncate-1-line">Silahkan Ubah
+                                                Data Zona Khas Di Bawah Ini</span>
+                                        </h5>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Zona Khas)*</label>
+                                            <input class="form-control" type="text" name="khas_zone" id="khas_zones"
+                                                required>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Kota)*</label>
+                                            <input class="form-control" type="text" name="city" id="citys" required>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Provinsi)*</label>
+                                            <select class="form-control" name="province" id="provincesss" required>
+                                                <option value="0"> Pilih </option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Status)*</label>
+                                            <select class="form-control" name="status" id="status_zona" required>
+                                                <option value=""> Pilih Status </option>
+                                                <option value="rampung">Rampung</option>
+                                                <option value="diresmikan">Diresmikan</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Jumlah Tenant)*</label>
+                                            <input class="form-control" type="text" name="tenant" id="tenants" required>
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4" id="peresmian_wrapper" style="display: none;">
+                                            <label class="form-label">Tanggal Peresmian)*</label>
+                                            <input class="form-control" type="date" name="inauguration"
+                                                id="inaugurations">
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4" id="diresmikan_wrapper" style="display: none;">
+                                            <label class="form-label">Diresmikan Oleh)*</label>
+                                            <input class="form-control" type="text" name="inaugurated"
+                                                id="inaugurateds">
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4 text-left">
+                                            <label class="form-label"></label>
+                                            <input class="btn btn-primary" type="submit" value="Simpan">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/assets/vendors/js/vendors.min.js"></script>
+    <script src="/assets/js/common-init.min.js"></script>
+    <script src="/assets/js/theme-customizer-init.min.js"></script>
+
+    <script>
+        let id_province;
+
+        window.addEventListener("load", async () => {
+            setupStatusListener();
+            await getUrlById();
+            await getProvinces();
+        });
+
+        function setupStatusListener() {
+            const statusSelect = document.getElementById('status_zona');
+            const peresmianWrapper = document.getElementById('peresmian_wrapper');
+            const diresmikanWrapper = document.getElementById('diresmikan_wrapper');
+
+            const inputPeresmian = document.getElementById('inaugurations');
+            const inputDiresmikan = document.getElementById('inaugurateds');
+
+            if (!statusSelect) return;
+
+            statusSelect.addEventListener('change', function () {
+                if (this.value === 'diresmikan') {
+                    if (peresmianWrapper) peresmianWrapper.style.display = 'block';
+                    if (diresmikanWrapper) diresmikanWrapper.style.display = 'block';
+
+                    if (inputPeresmian) inputPeresmian.setAttribute('required', 'required');
+                    if (inputDiresmikan) inputDiresmikan.setAttribute('required', 'required');
+                } else {
+                    if (peresmianWrapper) peresmianWrapper.style.display = 'none';
+                    if (diresmikanWrapper) diresmikanWrapper.style.display = 'none';
+
+                    if (inputPeresmian) inputPeresmian.removeAttribute('required');
+                    if (inputDiresmikan) inputDiresmikan.removeAttribute('required');
+                }
+            });
+        }
+
+        async function getUrlById() {
+            try {
+                const URLS = new URL(window.location.href);
+                const response = await fetch('/detail_zona_khas/' + URLS.pathname.split('/')[2]);
+                const rows = await response.json();
+
+                if (rows && rows.length > 0) {
+                    const data = rows[0];
+                    id_province = data.province;
+
+                    const setVal = (id, val) => {
+                        const el = document.getElementById(id);
+                        if (el) el.value = val !== null && val !== undefined ? val : '';
+                    };
+
+                    setVal("id", data.id);
+                    setVal("khas_zones", data.khas_zone);
+                    setVal("citys", data.city);
+                    setVal("tenants", data.tenant);
+                    setVal("inaugurateds", data.inaugurated);
+
+                    const formatDate = (dateString) => {
+                        if (!dateString) return '';
+                        return dateString.includes('T') ? dateString.split('T')[0] : dateString;
+                    };
+
+                    setVal("inaugurations", formatDate(data.inauguration));
+
+                    const statusSelect = document.getElementById('status_zona');
+                    if (statusSelect) {
+                        if (data.status) {
+                            statusSelect.value = data.status;
+                        } else if (data.inauguration || data.inaugurated) {
+                            statusSelect.value = 'diresmikan';
+                        } else {
+                            statusSelect.value = 'rampung';
+                        }
+                        statusSelect.dispatchEvent(new Event('change'));
+                    }
+                }
+            } catch (error) {
+                console.error("Gagal menarik data detail:", error);
+            }
+        }
+
+        async function getProvinces() {
+            try {
+                const response = await fetch('/provinces');
+                const data = await response.json();
+                const select = document.getElementById("provincesss");
+
+                if (select && data) {
+                    data.forEach(element => {
+                        const isSelected = (element?.id == id_province);
+                        const opt = document.createElement('option');
+                        opt.value = element?.id;
+                        opt.text = element?.province_name;
+                        opt.selected = isSelected;
+                        select.append(opt);
+                    });
+                }
+            } catch (error) {
+                console.error("Gagal menarik data provinsi:", error);
+            }
+        }
+    </script>
+</body>
+
+</html>

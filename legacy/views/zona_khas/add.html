@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zxx">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="" />
+    <meta name="keyword" content="" />
+    <meta name="author" content="theme_ocean" />
+    <title>KNEKS BACKEND || Dashboard</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/assets/images/favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="/assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="/assets/vendors/css/vendors.min.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/theme.min.css" />
+</head>
+
+<body>
+    <!-- Navigation & Header -->
+    <script src="/nav.js"></script>
+    <script src="/header.js"></script>
+
+    <main class="nxl-container">
+        <div class="nxl-content">
+            <!-- [ page-header ] start -->
+            <script src="/breadchumb.js"></script>
+            <div class="main-content">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <form action="/insertzonakhas" method="post">
+                            <div class="card stretch stretch-full">
+                                <div class="card-body lead-status">
+                                    <div class="mb-5 d-flex align-items-center justify-content-between">
+                                        <h5 class="fw-bold mb-0 me-4">
+                                            <span class="d-block mb-2">Tambah Zona Khas :</span>
+                                            <span class="fs-12 fw-normal text-muted text-truncate-1-line">Silahkan
+                                                Tambah Zona Khas Di Bawah Ini</span>
+                                        </h5>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Zona Khas)*</label>
+                                            <input class="form-control" type="text" name="khas_zone" id="khas_zone"
+                                                required>
+                                        </div>
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Kota)*</label>
+                                            <input class="form-control" type="text" name="city" id="city" required>
+                                        </div>
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Provinsi)*</label>
+                                            <select class="form-control" name="province" id="provincess" required>
+                                                <option value="0"> Pilih </option>
+                                            </select>
+                                        </div>
+
+                                        <!-- KOLOM STATUS -->
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Status)*</label>
+                                            <select class="form-control" name="status" id="status_zona" required>
+                                                <option value=""> Pilih Status </option>
+                                                <option value="rampung">Rampung</option>
+                                                <option value="diresmikan">Diresmikan</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- KOLOM TENANT TETAP MUNCUL -->
+                                        <div class="col-lg-12 mb-4">
+                                            <label class="form-label">Jumlah Tenant)*</label>
+                                            <input class="form-control" type="text" name="tenant" id="tenants" required>
+                                        </div>
+
+                                        <!-- KOLOM PERESMIAN (MUNCUL JIKA STATUS = DIRESMIKAN) -->
+                                        <div class="col-lg-12 mb-4" id="peresmian_wrapper" style="display: none;">
+                                            <label class="form-label">Tanggal Peresmian)*</label>
+                                            <input class="form-control" type="date" name="inauguration"
+                                                id="inaugurations">
+                                        </div>
+
+                                        <!-- KOLOM DIRESMIKAN OLEH (MUNCUL JIKA STATUS = DIRESMIKAN) -->
+                                        <div class="col-lg-12 mb-4" id="diresmikan_wrapper" style="display: none;">
+                                            <label class="form-label">Diresmikan Oleh)*</label>
+                                            <input class="form-control" type="text" name="inaugurated"
+                                                id="inaugurateds">
+                                        </div>
+
+                                        <div class="col-lg-12 mb-4 text-left">
+                                            <label class="form-label"></label>
+                                            <input class="btn btn-primary" type="submit" value="Simpan">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <!-- [ Main Content ] end -->
+        </div>
+    </main>
+
+    <script src="/assets/vendors/js/vendors.min.js"></script>
+    <script src="/assets/js/common-init.min.js"></script>
+    <script src="/assets/js/theme-customizer-init.min.js"></script>
+
+    <script>
+        // Script Load API Provinsi
+        window.addEventListener("load", async () => {
+            await fetch('/provinces')
+                .then(response => response.json())
+                .then((data) => {
+                    data.forEach(element => {
+                        const ddd = document.createElement('option')
+                        ddd.value = `${element?.id}`;
+                        ddd.text = `${element?.province_name}`;
+                        document.getElementById("provincess").append(ddd);
+                    });
+                })
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const statusSelect = document.getElementById('status_zona');
+            const peresmianWrapper = document.getElementById('peresmian_wrapper');
+            const diresmikanWrapper = document.getElementById('diresmikan_wrapper');
+
+            const inputPeresmian = document.getElementById('inaugurations');
+            const inputDiresmikan = document.getElementById('inaugurateds');
+
+            statusSelect.addEventListener('change', function () {
+                if (this.value === 'diresmikan') {
+                    peresmianWrapper.style.display = 'block';
+                    diresmikanWrapper.style.display = 'block';
+
+                    inputPeresmian.setAttribute('required', 'required');
+                    inputDiresmikan.setAttribute('required', 'required');
+                } else {
+                    // Jika Rampung atau Kosong, Sembunyikan form peresmian
+                    peresmianWrapper.style.display = 'none';
+                    diresmikanWrapper.style.display = 'none';
+
+                    inputPeresmian.removeAttribute('required');
+                    inputDiresmikan.removeAttribute('required');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
