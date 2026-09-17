@@ -37,7 +37,8 @@ Source/CI compatibility yang saat ini sudah tersedia mencakup antara lain:
 - Directorate Division (`devisi`) CRUD;
 - News Category CRUD;
 - News category/date read-filter;
-- `GET /posts/type/:name` untuk production values yang terbukti digunakan: `photos` dan `videos`.
+- `GET /posts/type/:name` untuk production values yang terbukti digunakan: `photos` dan `videos`;
+- `GET /photodetail/:id` sebagai native raw-row Photo detail read.
 
 Status Source ✅ / CI ✅ pada slice DB-backed di atas tidak otomatis berarti live DB/browser parity. Runtime DB/browser tetap 🟡 sampai environment nyata tersedia dan diuji.
 
@@ -54,11 +55,11 @@ Full reproducible application build juga masih **blocked** karena `package.json`
 
 Latest substantive verified result:
 
-- **GitHub Actions run #169**
-- commit `16a4c7689c6b3b07405242cbe8e524e6381f8af4`
+- **GitHub Actions run #177**
+- commit `93153934b6261ea739d5f1a9b6cac8cd8a08e4b1`
 - conclusion: **SUCCESS**
 
-Run tersebut sudah mencakup regression untuk News post-type selain regression lama seperti News Category, News read-filter, Directorate Division, Hot Issue Category/Subcategory, route comparator dan role-policy comparator.
+Run tersebut sudah mencakup regression Photo detail selain regression lama seperti News post-type, News Category, News read-filter, Directorate Division, Hot Issue Category/Subcategory, route comparator dan role-policy comparator.
 
 CI ini membuktikan source/static/automated compatibility pada scope yang terdaftar. CI tidak membuktikan live PostgreSQL side effects, browser cookies, production frontend behavior, real upload, atau external integration parity.
 
@@ -131,6 +132,23 @@ Observable contract legitimate values tetap dipertahankan:
 
 Unsupported `:name` sekarang ditolak sebelum repository access. Ini adalah intentional security boundary; parity penuh tidak diklaim untuk unsupported/malicious input yang Old-BE sebelumnya teruskan ke dynamic SQL.
 
+### `GET /photodetail/:id`
+
+Photo detail sekarang native dengan contract Old-BE yang berbeda dari `/posts/type/photos`:
+
+```sql
+SELECT * FROM  news_photos where id=$1
+```
+
+- ID berasal dari path;
+- success → raw rows array, HTTP 200;
+- empty → HTTP 200 `{success:false}`;
+- tanpa `ORDER BY`, `LIMIT`, `OFFSET`, pagination, atau custom mapping;
+- tidak menambahkan derived `ph`;
+- tidak menggunakan auth/cookie, multipart, filesystem, atau public upload URL generation pada handler read ini.
+
+Photo mutations (`insertphoto`, `updatephoto`, `deletephoto`) tetap fallback dan tidak ikut dipindahkan.
+
 Status:
 
 ```text
@@ -178,13 +196,13 @@ Untuk slice dengan source/CI hijau, runtime/browser tetap **🟡 perlu verifikas
 Next exact target yang sudah diaudit tetapi **belum diimplementasikan**:
 
 ```text
-GET /photodetail/:id
+GET /videodetail/:id
 ```
 
 Old-BE behavior:
 
 ```sql
-SELECT * FROM  news_photos where id=$1
+SELECT * FROM  news_videos where id=$1
 ```
 
 - ID berasal dari path;
@@ -192,8 +210,8 @@ SELECT * FROM  news_photos where id=$1
 - empty → HTTP 200 `{success:false}`;
 - tanpa ordering/pagination;
 - tidak menggunakan cookie/auth di handler;
-- tidak melibatkan multipart atau filesystem.
+- tidak melibatkan multipart, filesystem, atau public upload URL generation.
 
-New-ME saat ini masih menyediakan `photodetail` melalui legacy `handlers/news.cjs`, sehingga route tersebut masih fallback.
+New-ME masih menyediakan `videodetail` melalui legacy `handlers/news.cjs`; belum ada dedicated native Video detail method. Existing `/posts/type/videos` tetap kontrak list/mapped yang berbeda dan tidak boleh dipakai untuk filter detail di memory.
 
-Scope berikut harus **hanya** `GET /photodetail/:id`. Sibling Photo mutations (`insertphoto`, `updatephoto`, `deletephoto`) tetap upload/filesystem boundary dan tidak boleh ikut dimigrasikan pada slice read-only ini.
+Scope berikut harus **hanya** `GET /videodetail/:id`. Sibling Video mutations tetap di luar task ini dan harus diaudit pada slice terpisah sebelum dipindahkan.
