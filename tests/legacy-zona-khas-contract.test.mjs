@@ -33,16 +33,11 @@ test("Zona KHAS keeps Old-BE ceremony date null behavior", () => {
 });
 
 test("Zona KHAS controller owns all legacy paths and mutation redirect", () => {
-  for (const pathname of [
-    "/zona_khas",
-    "/zona_peta",
-    "/detail_zona_khas/",
-    "/insertzonakhas",
-    "/updatezonakhas",
-    "/deletezonakhas/",
-  ]) {
+  for (const pathname of ["/zona_khas", "/zona_peta", "/insertzonakhas", "/updatezonakhas"]) {
     assert.ok(controllerSource.includes(pathname), `missing Zona KHAS path ${pathname}`);
   }
+  assert.ok(controllerSource.includes('const DETAIL_RE = /^\\/detail_zona_khas\\/([^/]+)$/;'));
+  assert.ok(controllerSource.includes('const DELETE_RE = /^\\/deletezonakhas\\/([^/]+)$/;'));
   assert.match(controllerSource, /legacyRedirect\(request, "\/zk"\)/);
   assert.match(controllerSource, /rows\.length \? rows : \{ success: false \}/);
 });
