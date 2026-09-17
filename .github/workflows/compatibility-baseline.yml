@@ -30,6 +30,10 @@ jobs:
 
       - name: Check migrated source syntax
         run: |
+          node --check src/config/role-policies.js
+          node --check src/server/auth/session.js
+          node --check src/server/auth/authorization.js
+          node --check src/middleware.js
           node --check src/server/compat/legacy-auth-contract.js
           node --check src/server/controllers/legacy-auth.controller.js
           node --check src/server/compat/legacy-storage.js
@@ -51,10 +55,12 @@ jobs:
           node --check src/server/controllers/legacy-zona-khas.controller.js
           node --check 'src/app/[...legacy]/route.js'
           node --check scripts/compare-old-be-routes.mjs
+          node --check scripts/compare-old-be-role-policies.mjs
 
       - name: Run compatibility unit tests
         run: >-
           node --experimental-default-type=module --test
+          tests/cms-authorization.test.mjs
           tests/legacy-auth-contract.test.mjs
           tests/legacy-storage.test.mjs
           tests/legacy-data-menu-contract.test.mjs
@@ -67,3 +73,6 @@ jobs:
 
       - name: Compare Old-BE route contract with New-ME manifest
         run: node scripts/compare-old-be-routes.mjs --old-be old-be
+
+      - name: Compare Old-BE CMS role policies with New-ME
+        run: node --experimental-default-type=module scripts/compare-old-be-role-policies.mjs --old-be old-be
