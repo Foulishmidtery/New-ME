@@ -49,6 +49,7 @@ jobs:
           node --check src/server/controllers/legacy-negara-reference.controller.js
           node --check src/server/controllers/legacy-pembuka-reference.controller.js
           node --check src/server/controllers/legacy-peserta-reference.controller.js
+          node --check src/server/controllers/legacy-prioritas-reference.controller.js
           node --check src/server/compat/legacy-storage.js
           node --check 'src/app/storage/[bucket]/[...path]/route.js'
           node --check src/server/repositories/abouts.repository.js
@@ -96,6 +97,7 @@ jobs:
           tests/legacy-negara-reference-contract.test.mjs
           tests/legacy-pembuka-reference-contract.test.mjs
           tests/legacy-peserta-reference-contract.test.mjs
+          tests/legacy-prioritas-reference-contract.test.mjs
           tests/legacy-storage.test.mjs
           tests/legacy-data-menu-contract.test.mjs
           tests/legacy-agenda-contract.test.mjs
