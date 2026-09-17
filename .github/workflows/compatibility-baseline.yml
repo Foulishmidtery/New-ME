@@ -37,6 +37,9 @@ jobs:
           node --check src/server/repositories/data-menu.repository.js
           node --check src/server/services/data-menu.service.js
           node --check src/server/controllers/legacy-data-menu.controller.js
+          node --check src/server/repositories/agenda.repository.js
+          node --check src/server/services/agenda.service.js
+          node --check src/server/controllers/legacy-agenda.controller.js
           node --check 'src/app/[...legacy]/route.js'
           node --check scripts/compare-old-be-routes.mjs
 
@@ -46,6 +49,7 @@ jobs:
           tests/legacy-auth-contract.test.mjs
           tests/legacy-storage.test.mjs
           tests/legacy-data-menu-contract.test.mjs
+          tests/legacy-agenda-contract.test.mjs
 
       - name: Compare Old-BE route contract with New-ME manifest
         run: node scripts/compare-old-be-routes.mjs --old-be old-be
