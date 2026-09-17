@@ -4,7 +4,7 @@ Last updated: 2026-09-17
 
 Compatibility baseline: `Foulishmidtery/Old-BE@0984f0182738303627dab16fbec60c948e926e01`
 
-Latest substantive compatibility gate before this documentation-only commit: **run #139 — success** (`b98d4af2b36a6585fd61e8e8382c213abac63efb`).
+Latest substantive compatibility gate: **run #146 — success** (`44ef62b9eaac914e88d4c5923053d18bebaf5419`).
 
 ## Status model
 
@@ -55,6 +55,7 @@ Source/CI completion does not imply runtime completion.
 | Roles lookup | ✅ | ✅ | 🟡 | 🟡 | `GET /roles` now uses a dedicated repository/service/controller with `SELECT * FROM roles`. |
 | Hot Issue Category CRUD | ✅ | ✅ | 🟡 | 🟡 | Five legacy category routes are native; no upload/filesystem side effect exists in this slice. |
 | Hot Issue Subcategory CRUD | ✅ | ✅ | 🟡 | 🟡 | Five exact Old-BE routes are native; historical insert-path typo and raw `hot_category_id.split('-')` semantics are retained. |
+| Directorate Division (`devisi`) CRUD | ✅ | ✅ | 🟡 | 🟡 | Five legacy Division routes are native; legacy SQL is isolated from modern `RETURNING` methods and raw `directorats_id.split('-')` is retained. |
 | Hot Issue main CRUD | ❌ | ❌ | ❌ | ❌ | Upload-heavy: insert/update use `photo`, DB stores public upload URL, delete removes filesystem image. |
 | Route-specific upload parity | ❌ | ❌ | ❌ | ❌ | Must inventory each multipart route before migration. |
 | Legacy `.cjs` / adapter fallback | ⚠️ Active | ✅ covered as fallback | 🟡 | 🟡 | Still required for unmigrated domains, especially upload-heavy/security-sensitive flows. Native routes dispatch before this fallback. |
@@ -199,6 +200,57 @@ Browser: 🟡
 
 CI run #138 initially failed only because the regression test searched the word `RETURNING` in a source comment that explicitly said the legacy SQL had no `RETURNING`. Executable SQL was already correct. The assertion was changed to inspect comment-stripped executable source; no production source change was needed. Run #139 then passed all syntax, regression, route-baseline and authorization-baseline checks.
 
+## Directorate Division (`devisi`) DB-only CRUD
+
+Native legacy routes:
+
+- `GET /directorat_devisi`
+- `POST /directorats_devisi_add`
+- `GET /directorats_devisi_detail/:id`
+- `GET /division_delete/:id`
+- `POST /directorats_devisi_edit`
+
+Locked Old-BE behavior retained:
+
+- source table `devisi`;
+- list SQL remains `SELECT * FROM devisi` with no `ORDER BY`;
+- list empty result remains HTTP 200 `[]`;
+- detail ID comes from the path and response remains the raw rows array, including `[]` when no row matches;
+- insert/update preserve raw `directorats_id.split('-')`;
+- `bbb[0]` remains `directorats_id` and `bbb[1]` remains `directorats_name`;
+- insert field order remains `title`, `title_en`, `description`, `description_en`, `directorats_id`, `directorats_name`;
+- update keeps Old-BE field ordering and takes the update ID from body `id`;
+- delete remains `GET /division_delete/:id` and uses the path ID;
+- insert/update/delete redirect to `/devision` with HTTP 302;
+- compatibility mutation SQL intentionally has no `RETURNING`;
+- no cookie/role requirement was added to the API routes;
+- no multipart parser, upload, file write/delete, public upload URL or external service exists in this slice.
+
+Native flow:
+
+```text
+legacy route
+  → legacy-directorate-division.controller.js
+  → directoratService.legacyDivision
+  → legacy Division methods in directorat.repository.js
+  → devisi
+```
+
+The modern Division methods (`getDevisi`, `getDevisiById`, `createDevisi`, `updateDevisi`, `deleteDevisi`) remain separate and retain their existing modern `RETURNING` semantics. The compatibility migration did not rewrite them.
+
+The five Division paths are intercepted in `src/app/[...legacy]/route.js` before `handleLegacyApi`; the generic Directorate fallback remains available for Directorate main/media routes that are outside this DB-only slice.
+
+Current status:
+
+```text
+Source: ✅
+CI: ✅
+Runtime DB: 🟡
+Browser: 🟡
+```
+
+Compatibility gate: **run #146 — SUCCESS** at commit `44ef62b9eaac914e88d4c5923053d18bebaf5419`.
+
 ## Hot Issue main audit
 
 The main `/hotissue` CRUD is **not DB-only** and was not migrated in this task.
@@ -213,6 +265,20 @@ Locked Old-BE behavior includes:
 
 It must stay on legacy/fallback for now.
 
+## Next target audit — News Category
+
+The next exact candidate is **News Category DB-only CRUD**. Source audit confirms the category routes themselves do not use the News upload middleware:
+
+- `POST /insertnewscategory`
+- `POST /updatenewscategory`
+- `GET /categories`
+- `GET /detailnewscategory/:id`
+- `GET /deletenewscategory/:id`
+
+Old-BE handlers operate only on `news_categories`: list/detail use SELECT, insert/update use plain SQL without `RETURNING`, delete removes the DB row, and mutations redirect to `/nc`. No category handler uses multer, filesystem deletion, public upload URL construction or an external service.
+
+The New-ME `newsRepository` currently contains the main News methods but no dedicated News Category compatibility methods/controller, so this remains an unmigrated, isolatable DB-only slice. Main News upload routes remain out of scope.
+
 ## Native compatibility dispatch
 
 `src/app/[...legacy]/route.js` dispatches native compatibility handlers before `legacy-handler-adapter.js`, including:
@@ -223,29 +289,30 @@ It must stay on legacy/fallback for now.
 4. Area reference
 5. Contacts / Questbook
 6. Data Menu
-7. Gender reference
-8. Hot Issue Category CRUD
-9. Hot Issue Subcategory CRUD
-10. Institution reads
-11. KBLI reference
-12. KDEKS profile/reference reads
-13. KDEKS province profile reads
-14. Maps
-15. Menu / Submenu settings
-16. Negara reference
-17. Pembuka reference
-18. Peserta reference
-19. Prioritas reference
-20. Province
-21. Roles lookup
-22. Scopes
-23. Social Media / Post Social Media
-24. Tagging
-25. Usia reference
-26. Web Profile reads
-27. Web Profile DB-only settings
-28. Zona KHAS
-29. remaining routes → `legacy-handler-adapter.js`
+7. Directorate Division CRUD
+8. Gender reference
+9. Hot Issue Category CRUD
+10. Hot Issue Subcategory CRUD
+11. Institution reads
+12. KBLI reference
+13. KDEKS profile/reference reads
+14. KDEKS province profile reads
+15. Maps
+16. Menu / Submenu settings
+17. Negara reference
+18. Pembuka reference
+19. Peserta reference
+20. Prioritas reference
+21. Province
+22. Roles lookup
+23. Scopes
+24. Social Media / Post Social Media
+25. Tagging
+26. Usia reference
+27. Web Profile reads
+28. Web Profile DB-only settings
+29. Zona KHAS
+30. remaining routes → `legacy-handler-adapter.js`
 
 The fallback remains intentional until each remaining domain has its own parity gate and runtime-sensitive behavior is verified. Native routes are intercepted before fallback; keeping sibling fallback code present is currently a safety measure, not evidence that the native route is unused.
 
@@ -254,11 +321,11 @@ The fallback remains intentional until each remaining domain has its own parity 
 `.github/workflows/compatibility-baseline.yml` currently validates:
 
 - migrated source syntax with `node --check`;
-- all registered Node contract/regression tests, including Hot Issue Category and Subcategory;
+- all registered Node contract/regression tests, including Hot Issue Category, Hot Issue Subcategory and Directorate Division;
 - locked Old-BE route compatibility via `compare-old-be-routes.mjs`;
 - exact per-page role authorization compatibility via `compare-old-be-role-policies.mjs`.
 
-Latest substantive migration result: **GitHub Actions run #139 — SUCCESS** at commit `b98d4af2b36a6585fd61e8e8382c213abac63efb`.
+Latest substantive migration result: **GitHub Actions run #146 — SUCCESS** at commit `44ef62b9eaac914e88d4c5923053d18bebaf5419`.
 
 This is source/static/automated parity only. It does not replace real DB/browser testing.
 
@@ -266,7 +333,7 @@ This is source/static/automated parity only. It does not replace real DB/browser
 
 Upload-heavy endpoints remain intentionally outside this phase. No global upload validator or new upload migration was introduced here.
 
-Still excluded include the main Hot Issue CRUD, News upload, Files upload, Photo upload, Video upload, Institution `logo_member`, Structure, Directorate media uploads, KDEKS upload, banners/slideshow, Opini and other media/file mutations.
+Still excluded include the main Hot Issue CRUD, main News upload, Files upload, Photo upload, Video upload, Institution `logo_member`, Structure, Directorate media uploads, KDEKS upload, banners/slideshow, Opini and other media/file mutations.
 
 Before any future upload domain is changed, inventory each Old-BE route for:
 
@@ -276,7 +343,7 @@ Before any future upload domain is changed, inventory each Old-BE route for:
 
 1. Recover the real New-ME `package.json` and lockfile from the actual development source; dependency reconstruction remains blocked until then.
 2. Keep runtime DB/browser verification 🟡 for source/CI-complete DB-backed slices until a runnable environment exists.
-3. Keep Institution `logo_member`, main Hot Issue, and all other upload-heavy mutations on fallback.
-4. **Next exact target: Directorate Division (`devisi`) DB-only CRUD.** Locked Old-BE routes use plain DB handlers without multer/filesystem calls; list reads `devisi`, insert/update preserve raw `directorats_id.split('-')`, delete is DB-only, and mutations redirect to `/devision`. This candidate must still receive its own audit → implementation → regression → CI cycle before being marked migrated.
+3. Keep Institution `logo_member`, main Hot Issue, main News upload, Directorate media and all other upload-heavy mutations on fallback.
+4. **Next exact target: News Category DB-only CRUD.** Its category routes are plain DB handlers with no multer/filesystem/external-service side effects and can be isolated from the upload-heavy main News flow.
 
 No domain above with 🟡 runtime status is considered fully production-complete yet.
