@@ -46,6 +46,7 @@ jobs:
           node --check src/server/controllers/legacy-web-profile-read.controller.js
           node --check src/server/controllers/legacy-web-profile-settings.controller.js
           node --check src/server/controllers/legacy-menu-settings.controller.js
+          node --check src/server/controllers/legacy-negara-reference.controller.js
           node --check src/server/controllers/legacy-peserta-reference.controller.js
           node --check src/server/compat/legacy-storage.js
           node --check 'src/app/storage/[bucket]/[...path]/route.js'
@@ -91,6 +92,7 @@ jobs:
           tests/legacy-web-profile-read-contract.test.mjs
           tests/legacy-web-profile-settings-contract.test.mjs
           tests/legacy-menu-settings-contract.test.mjs
+          tests/legacy-negara-reference-contract.test.mjs
           tests/legacy-peserta-reference-contract.test.mjs
           tests/legacy-storage.test.mjs
           tests/legacy-data-menu-contract.test.mjs
