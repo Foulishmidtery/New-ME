@@ -19,6 +19,7 @@ import { handleLegacyNewsCategory } from "@/server/controllers/legacy-news-categ
 import { handleLegacyNewsReadFilter } from "@/server/controllers/legacy-news-read-filter.controller";
 import { handleLegacyPostsType } from "@/server/controllers/legacy-posts-type.controller";
 import { handleLegacyPhotoDetail } from "@/server/controllers/legacy-photo-detail.controller";
+import { handleLegacyVideoDetail } from "@/server/controllers/legacy-video-detail.controller";
 import { handleLegacyPembukaReference } from "@/server/controllers/legacy-pembuka-reference.controller";
 import { handleLegacyPesertaReference } from "@/server/controllers/legacy-peserta-reference.controller";
 import { handleLegacyPrioritasReference } from "@/server/controllers/legacy-prioritas-reference.controller";
@@ -99,6 +100,9 @@ async function dispatch(request) {
 
   const photoDetailResponse = await handleLegacyPhotoDetail(request);
   if (photoDetailResponse) return photoDetailResponse;
+
+  const videoDetailResponse = await handleLegacyVideoDetail(request);
+  if (videoDetailResponse) return videoDetailResponse;
 
   const pembukaReferenceResponse = await handleLegacyPembukaReference(request);
   if (pembukaReferenceResponse) return pembukaReferenceResponse;
