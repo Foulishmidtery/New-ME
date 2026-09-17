@@ -38,7 +38,8 @@ Source/CI compatibility yang saat ini sudah tersedia mencakup antara lain:
 - News Category CRUD;
 - News category/date read-filter;
 - `GET /posts/type/:name` untuk production values yang terbukti digunakan: `photos` dan `videos`;
-- `GET /photodetail/:id` sebagai native raw-row Photo detail read.
+- `GET /photodetail/:id` sebagai native raw-row Photo detail read;
+- `GET /videodetail/:id` sebagai native raw-row Video detail read.
 
 Status Source ✅ / CI ✅ pada slice DB-backed di atas tidak otomatis berarti live DB/browser parity. Runtime DB/browser tetap 🟡 sampai environment nyata tersedia dan diuji.
 
@@ -55,11 +56,11 @@ Full reproducible application build juga masih **blocked** karena `package.json`
 
 Latest substantive verified result:
 
-- **GitHub Actions run #177**
-- commit `93153934b6261ea739d5f1a9b6cac8cd8a08e4b1`
+- **GitHub Actions run #185**
+- commit `e0cc06dabefaa06bf21d4fbc3417641a4ee6f872`
 - conclusion: **SUCCESS**
 
-Run tersebut sudah mencakup regression Photo detail selain regression lama seperti News post-type, News Category, News read-filter, Directorate Division, Hot Issue Category/Subcategory, route comparator dan role-policy comparator.
+Run tersebut sudah mencakup regression Video detail dan Photo detail selain regression lama seperti News post-type, News Category, News read-filter, Directorate Division, Hot Issue Category/Subcategory, route comparator dan role-policy comparator.
 
 CI ini membuktikan source/static/automated compatibility pada scope yang terdaftar. CI tidak membuktikan live PostgreSQL side effects, browser cookies, production frontend behavior, real upload, atau external integration parity.
 
@@ -134,20 +135,33 @@ Unsupported `:name` sekarang ditolak sebelum repository access. Ini adalah inten
 
 ### `GET /photodetail/:id`
 
-Photo detail sekarang native dengan contract Old-BE yang berbeda dari `/posts/type/photos`:
+Photo detail native mempertahankan:
 
 ```sql
 SELECT * FROM  news_photos where id=$1
 ```
 
-- ID berasal dari path;
-- success → raw rows array, HTTP 200;
-- empty → HTTP 200 `{success:false}`;
-- tanpa `ORDER BY`, `LIMIT`, `OFFSET`, pagination, atau custom mapping;
-- tidak menambahkan derived `ph`;
-- tidak menggunakan auth/cookie, multipart, filesystem, atau public upload URL generation pada handler read ini.
+- path ID;
+- raw rows array HTTP 200;
+- empty `{success:false}` HTTP 200;
+- tanpa ordering/pagination/custom mapping;
+- tidak menambahkan `ph`;
+- Photo mutations tetap fallback.
 
-Photo mutations (`insertphoto`, `updatephoto`, `deletephoto`) tetap fallback dan tidak ikut dipindahkan.
+### `GET /videodetail/:id`
+
+Video detail sekarang native dan sengaja terpisah dari mapped list `/posts/type/videos`:
+
+```sql
+SELECT * FROM  news_videos where id=$1
+```
+
+- path ID;
+- raw rows array HTTP 200;
+- empty `{success:false}` HTTP 200;
+- tanpa `ORDER BY`, `LIMIT`, `OFFSET`, pagination, atau custom mapping;
+- tidak menggunakan auth/cookie, multipart, filesystem, atau upload URL logic pada read handler;
+- `insertvideo`, `updatevideo`, dan `deletevideo` tetap fallback.
 
 Status:
 
@@ -193,25 +207,35 @@ Untuk slice dengan source/CI hijau, runtime/browser tetap **🟡 perlu verifikas
 
 ## Next safe migration stage
 
-Next exact target yang sudah diaudit tetapi **belum diimplementasikan**:
+Audit remaining DB-only/read-only sudah dilakukan setelah Video detail selesai. Kandidat seperti public News detail, KDEKS News/category reads, dashboard reads, Opini reads, dan slideshow reads masih fallback. Public News detail mempunyai custom mapping/derived `img`; KDEKS News list mempunyai per-row category lookup; slideshow/Opini mempunyai sibling media mutations; `/posts` bergantung cookie role; `/search_posts` memakai dynamic string SQL.
+
+Next exact target yang dipilih karena paling isolated adalah:
 
 ```text
-GET /videodetail/:id
+GET /api_news_detail_kdeks/:id
 ```
 
-Old-BE behavior:
+Old-BE route/handler:
+
+```text
+GET /api_news_detail_kdeks/:id → news_details_kdeks
+```
+
+Old-BE query:
 
 ```sql
-SELECT * FROM  news_videos where id=$1
+SELECT * FROM news where id = $1 AND web_identity = 'kdeks' 
 ```
 
-- ID berasal dari path;
-- success → raw rows array, HTTP 200;
+Contract:
+
+- path `id` → `$1`;
+- found → raw rows array HTTP 200;
 - empty → HTTP 200 `{success:false}`;
 - tanpa ordering/pagination;
-- tidak menggunakan cookie/auth di handler;
-- tidak melibatkan multipart, filesystem, atau public upload URL generation.
+- tanpa auth/cookie branch;
+- tanpa multipart/filesystem/public upload URL/external upstream;
+- New-ME masih menjalankannya melalui `handlers/news.cjs` / generic fallback;
+- native KDEKS profile controller yang sudah ada tidak menangani KDEKS News routes.
 
-New-ME masih menyediakan `videodetail` melalui legacy `handlers/news.cjs`; belum ada dedicated native Video detail method. Existing `/posts/type/videos` tetap kontrak list/mapped yang berbeda dan tidak boleh dipakai untuk filter detail di memory.
-
-Scope berikut harus **hanya** `GET /videodetail/:id`. Sibling Video mutations tetap di luar task ini dan harus diaudit pada slice terpisah sebelum dipindahkan.
+Target ini **belum diimplementasikan** pada task Video detail ini.
