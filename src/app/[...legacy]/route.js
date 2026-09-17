@@ -1,5 +1,6 @@
 import { handleLegacyAuth } from "@/server/controllers/legacy-auth.controller";
 import { handleLegacyAgenda } from "@/server/controllers/legacy-agenda.controller";
+import { handleLegacyContacts } from "@/server/controllers/legacy-contacts.controller";
 import { handleLegacyDataMenu } from "@/server/controllers/legacy-data-menu.controller";
 import { handleLegacyProvince } from "@/server/controllers/legacy-province.controller";
 import { handleLegacyTagging } from "@/server/controllers/legacy-tagging.controller";
@@ -15,6 +16,9 @@ async function dispatch(request) {
 
   const agendaResponse = await handleLegacyAgenda(request);
   if (agendaResponse) return agendaResponse;
+
+  const contactsResponse = await handleLegacyContacts(request);
+  if (contactsResponse) return contactsResponse;
 
   const dataMenuResponse = await handleLegacyDataMenu(request);
   if (dataMenuResponse) return dataMenuResponse;
