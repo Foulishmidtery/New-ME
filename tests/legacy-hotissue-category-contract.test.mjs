@@ -70,7 +70,18 @@ test("Hot Issue Category compatibility controller preserves response and redirec
   assert.match(controllerSource, /row \? \[row\] : \{ success: false \}/);
   assert.match(controllerSource, /legacyRedirect\(request, "\/hic"\)/);
   assert.match(controllerSource, /Response\.redirect\(new URL\(pathname, request\.url\), 302\)/);
-  assert.doesNotMatch(controllerSource, /hotissuesubcategory|inserthotissue|updatehotissue|deletehotissue[^c]/);
+
+  for (const siblingPath of [
+    'pathname === "/hotissuesubcategory"',
+    'pathname === "/inserthotissubcategory"',
+    'pathname === "/updatehotissuesubcategory"',
+    'pathname === "/hotissue"',
+    'pathname === "/inserthotissue"',
+    'pathname === "/updatehotissue"',
+  ]) {
+    assert.ok(!controllerSource.includes(siblingPath), `controller widened into ${siblingPath}`);
+  }
+
   assert.doesNotMatch(controllerSource, /writeFile|unlink|mkdir|validateUpload/);
 });
 
