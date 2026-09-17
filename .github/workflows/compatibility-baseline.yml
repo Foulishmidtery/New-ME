@@ -68,6 +68,9 @@ jobs:
           node --check src/server/services/roles-reference.service.js
           node --check src/server/repositories/hotissue.repository.js
           node --check src/server/services/hotissue.service.js
+          node --check src/server/repositories/directorat.repository.js
+          node --check src/server/services/directorat.service.js
+          node --check src/server/controllers/legacy-directorate-division.controller.js
           node --check src/server/repositories/data-menu.repository.js
           node --check src/server/services/data-menu.service.js
           node --check src/server/controllers/legacy-data-menu.controller.js
@@ -94,6 +97,7 @@ jobs:
           tests/legacy-auth-contract.test.mjs
           tests/legacy-abouts-read-contract.test.mjs
           tests/legacy-area-reference-contract.test.mjs
+          tests/legacy-directorate-division-contract.test.mjs
           tests/legacy-gender-reference-contract.test.mjs
           tests/legacy-hotissue-category-contract.test.mjs
           tests/legacy-hotissue-subcategory-contract.test.mjs
