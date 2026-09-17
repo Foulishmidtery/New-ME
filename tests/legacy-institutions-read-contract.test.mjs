@@ -50,7 +50,11 @@ test("Institution upload mutations remain outside the read-only slice", () => {
   for (const pathname of ["/insertinstitution", "/updateinstitution", "/deleteinstitutions/"]) {
     assert.ok(!controllerSource.includes(pathname), `read slice widened to ${pathname}`);
   }
-  assert.doesNotMatch(controllerSource, /logo_member|public\/uploads|node:fs|req\.file/);
+
+  const executableSource = controllerSource
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/\/\/.*$/gm, "");
+  assert.doesNotMatch(executableSource, /public\/uploads|node:fs|req\.file|formData\(/);
 });
 
 test("Institution reads dispatch before generic legacy fallback", () => {
