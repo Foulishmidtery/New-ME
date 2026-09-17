@@ -215,5 +215,13 @@ export const newsRepository = {
     return (
       await db.query('SELECT * FROM  news_photos where id=$1', [id])
     ).rows;
+  },
+
+  // Legacy Video detail compatibility. Keep the raw Old-BE rows contract;
+  // do not reuse the mapped /posts/type/videos response.
+  async getLegacyVideoDetailRows(id) {
+    return (
+      await db.query('SELECT * FROM  news_videos where id=$1', [id])
+    ).rows;
   }
 };
