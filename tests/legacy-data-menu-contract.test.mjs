@@ -31,15 +31,11 @@ test("legacy Data Menu mutation SQL does not introduce RETURNING or coercion", (
 });
 
 test("legacy Data Menu keeps Old-BE paths and redirect contract", () => {
-  for (const pathname of [
-    "/data_menu",
-    "/detail_data_menus/",
-    "/delete_data_menu/",
-    "/insert_data_menu",
-    "/update_data_menu",
-  ]) {
+  for (const pathname of ["/data_menu", "/insert_data_menu", "/update_data_menu"]) {
     assert.ok(controllerSource.includes(pathname), `missing legacy path ${pathname}`);
   }
+  assert.ok(controllerSource.includes('const DETAIL_RE = /^\\/detail_data_menus\\/([^/]+)$/;'));
+  assert.ok(controllerSource.includes('const DELETE_RE = /^\\/delete_data_menu\\/([^/]+)$/;'));
   assert.match(controllerSource, /legacyRedirect\(request, "\/menu_data"\)/);
   assert.match(controllerSource, /rows\.length \? rows : \{ success: false \}/);
   assert.match(controllerSource, /status: 200/);
