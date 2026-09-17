@@ -52,6 +52,7 @@ jobs:
           node --check src/server/controllers/legacy-news-category.controller.js
           node --check src/server/controllers/legacy-news-read-filter.controller.js
           node --check src/server/controllers/legacy-posts-type.controller.js
+          node --check src/server/controllers/legacy-photo-detail.controller.js
           node --check src/server/controllers/legacy-pembuka-reference.controller.js
           node --check src/server/controllers/legacy-peserta-reference.controller.js
           node --check src/server/controllers/legacy-prioritas-reference.controller.js
@@ -117,6 +118,7 @@ jobs:
           tests/legacy-news-category-contract.test.mjs
           tests/legacy-news-read-filter-contract.test.mjs
           tests/legacy-posts-type-contract.test.mjs
+          tests/legacy-photo-detail-contract.test.mjs
           tests/legacy-pembuka-reference-contract.test.mjs
           tests/legacy-peserta-reference-contract.test.mjs
           tests/legacy-prioritas-reference-contract.test.mjs
