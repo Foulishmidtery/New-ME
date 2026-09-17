@@ -26,7 +26,9 @@ const manifestSource = fs.readFileSync(
 );
 
 const modernNewsSource = repositorySource.split("// Legacy News Category compatibility")[0];
-const legacyCategorySource = repositorySource.split("// Legacy News Category compatibility")[1];
+const legacyCategorySource = repositorySource
+  .split("// Legacy News Category compatibility")[1]
+  .split("// Legacy public News read/filter compatibility")[0];
 const executableLegacyCategorySource = stripComments(legacyCategorySource);
 const executableControllerSource = stripComments(controllerSource);
 
