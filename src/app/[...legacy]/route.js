@@ -17,6 +17,7 @@ import { handleLegacyMenuSettings } from "@/server/controllers/legacy-menu-setti
 import { handleLegacyNegaraReference } from "@/server/controllers/legacy-negara-reference.controller";
 import { handleLegacyNewsCategory } from "@/server/controllers/legacy-news-category.controller";
 import { handleLegacyNewsReadFilter } from "@/server/controllers/legacy-news-read-filter.controller";
+import { handleLegacyPostsType } from "@/server/controllers/legacy-posts-type.controller";
 import { handleLegacyPembukaReference } from "@/server/controllers/legacy-pembuka-reference.controller";
 import { handleLegacyPesertaReference } from "@/server/controllers/legacy-peserta-reference.controller";
 import { handleLegacyPrioritasReference } from "@/server/controllers/legacy-prioritas-reference.controller";
@@ -91,6 +92,9 @@ async function dispatch(request) {
 
   const newsReadFilterResponse = await handleLegacyNewsReadFilter(request);
   if (newsReadFilterResponse) return newsReadFilterResponse;
+
+  const postsTypeResponse = await handleLegacyPostsType(request);
+  if (postsTypeResponse) return postsTypeResponse;
 
   const pembukaReferenceResponse = await handleLegacyPembukaReference(request);
   if (pembukaReferenceResponse) return pembukaReferenceResponse;
