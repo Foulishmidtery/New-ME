@@ -175,5 +175,23 @@ export const newsRepository = {
 
   async deleteLegacyCategory(id) {
     await db.query('DELETE FROM news_categories where id = $1 ', [id]);
+  },
+
+  // Legacy public News read/filter compatibility
+  async getLegacyNewsByCategory(id) {
+    return (
+      await db.query(
+        'SELECT * FROM  news where category_id=$1 ORDER BY news_datetime DESC',
+        [id],
+      )
+    ).rows;
+  },
+
+  async getLegacyNewsByDate(date) {
+    return (
+      await db.query('SELECT * FROM  news where news_datetime LIKE $1', [
+        '%' + date + '%',
+      ])
+    ).rows;
   }
 };
