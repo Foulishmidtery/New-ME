@@ -14,6 +14,14 @@ export const directoratService = {
   updateDevisi: (id, data) => directoratRepository.updateDevisi(id, data),
   deleteDevisi: (id) => directoratRepository.deleteDevisi(id),
 
+  legacyDivision: {
+    list: () => directoratRepository.getLegacyDevisi(),
+    detail: (id) => directoratRepository.getLegacyDevisiDetail(id),
+    create: (data) => directoratRepository.createLegacyDevisi(data),
+    update: (data) => directoratRepository.updateLegacyDevisi(data),
+    remove: (id) => directoratRepository.deleteLegacyDevisi(id),
+  },
+
   getDirectoratsFeNews: (id) => directoratRepository.getDirectoratsFeNews(id),
   getDirectoratsFePhotos: (id) => directoratRepository.getDirectoratsFePhotos(id),
   getDirectoratsFeVideos: (id) => directoratRepository.getDirectoratsFeVideos(id),
