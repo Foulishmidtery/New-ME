@@ -36,8 +36,11 @@ jobs:
           node --check src/middleware.js
           node --check src/server/compat/legacy-auth-contract.js
           node --check src/server/controllers/legacy-auth.controller.js
+          node --check src/server/controllers/legacy-abouts-read.controller.js
           node --check src/server/compat/legacy-storage.js
           node --check 'src/app/storage/[bucket]/[...path]/route.js'
+          node --check src/server/repositories/abouts.repository.js
+          node --check src/server/services/abouts.service.js
           node --check src/server/repositories/data-menu.repository.js
           node --check src/server/services/data-menu.service.js
           node --check src/server/controllers/legacy-data-menu.controller.js
@@ -62,6 +65,7 @@ jobs:
           node --experimental-default-type=module --test
           tests/cms-authorization.test.mjs
           tests/legacy-auth-contract.test.mjs
+          tests/legacy-abouts-read-contract.test.mjs
           tests/legacy-storage.test.mjs
           tests/legacy-data-menu-contract.test.mjs
           tests/legacy-agenda-contract.test.mjs
