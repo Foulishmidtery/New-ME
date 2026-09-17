@@ -50,6 +50,7 @@ jobs:
           node --check src/server/controllers/legacy-pembuka-reference.controller.js
           node --check src/server/controllers/legacy-peserta-reference.controller.js
           node --check src/server/controllers/legacy-prioritas-reference.controller.js
+          node --check src/server/controllers/legacy-roles-reference.controller.js
           node --check src/server/controllers/legacy-usia-reference.controller.js
           node --check src/server/compat/legacy-storage.js
           node --check 'src/app/storage/[bucket]/[...path]/route.js'
@@ -61,6 +62,8 @@ jobs:
           node --check src/server/services/web-profile.service.js
           node --check src/server/repositories/menu-settings.repository.js
           node --check src/server/services/menu-settings.service.js
+          node --check src/server/repositories/roles-reference.repository.js
+          node --check src/server/services/roles-reference.service.js
           node --check src/server/repositories/data-menu.repository.js
           node --check src/server/services/data-menu.service.js
           node --check src/server/controllers/legacy-data-menu.controller.js
@@ -99,6 +102,7 @@ jobs:
           tests/legacy-pembuka-reference-contract.test.mjs
           tests/legacy-peserta-reference-contract.test.mjs
           tests/legacy-prioritas-reference-contract.test.mjs
+          tests/legacy-roles-reference-contract.test.mjs
           tests/legacy-usia-reference-contract.test.mjs
           tests/legacy-storage.test.mjs
           tests/legacy-data-menu-contract.test.mjs
