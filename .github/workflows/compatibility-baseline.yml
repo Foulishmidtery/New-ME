@@ -37,6 +37,7 @@ jobs:
           node --check src/server/compat/legacy-auth-contract.js
           node --check src/server/controllers/legacy-auth.controller.js
           node --check src/server/controllers/legacy-abouts-read.controller.js
+          node --check src/server/controllers/legacy-institutions-read.controller.js
           node --check src/server/controllers/legacy-kdeks-profile-read.controller.js
           node --check src/server/controllers/legacy-kdeks-province-profile-read.controller.js
           node --check src/server/controllers/legacy-web-profile-read.controller.js
@@ -46,6 +47,8 @@ jobs:
           node --check 'src/app/storage/[bucket]/[...path]/route.js'
           node --check src/server/repositories/abouts.repository.js
           node --check src/server/services/abouts.service.js
+          node --check src/server/repositories/profile.repository.js
+          node --check src/server/services/profile.service.js
           node --check src/server/repositories/web-profile.repository.js
           node --check src/server/services/web-profile.service.js
           node --check src/server/repositories/menu-settings.repository.js
@@ -75,6 +78,7 @@ jobs:
           tests/cms-authorization.test.mjs
           tests/legacy-auth-contract.test.mjs
           tests/legacy-abouts-read-contract.test.mjs
+          tests/legacy-institutions-read-contract.test.mjs
           tests/legacy-kdeks-profile-read-contract.test.mjs
           tests/legacy-kdeks-province-profile-read-contract.test.mjs
           tests/legacy-web-profile-read-contract.test.mjs
