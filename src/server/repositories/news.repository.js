@@ -207,5 +207,13 @@ export const newsRepository = {
     const query = LEGACY_POST_TYPE_QUERIES[name];
     if (!query) return null;
     return (await db.query(query)).rows;
+  },
+
+  // Legacy Photo detail compatibility. Keep the raw Old-BE rows contract;
+  // do not reuse the mapped /posts/type/photos response.
+  async getLegacyPhotoDetailRows(id) {
+    return (
+      await db.query('SELECT * FROM  news_photos where id=$1', [id])
+    ).rows;
   }
 };
