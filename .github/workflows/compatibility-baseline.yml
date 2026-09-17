@@ -50,6 +50,7 @@ jobs:
           node --check src/server/controllers/legacy-menu-settings.controller.js
           node --check src/server/controllers/legacy-negara-reference.controller.js
           node --check src/server/controllers/legacy-news-category.controller.js
+          node --check src/server/controllers/legacy-news-read-filter.controller.js
           node --check src/server/controllers/legacy-pembuka-reference.controller.js
           node --check src/server/controllers/legacy-peserta-reference.controller.js
           node --check src/server/controllers/legacy-prioritas-reference.controller.js
@@ -113,6 +114,7 @@ jobs:
           tests/legacy-menu-settings-contract.test.mjs
           tests/legacy-negara-reference-contract.test.mjs
           tests/legacy-news-category-contract.test.mjs
+          tests/legacy-news-read-filter-contract.test.mjs
           tests/legacy-pembuka-reference-contract.test.mjs
           tests/legacy-peserta-reference-contract.test.mjs
           tests/legacy-prioritas-reference-contract.test.mjs
