@@ -102,6 +102,12 @@ export const profileRepository = {
       return result.rows[0];
     }
   },
+  async legacyUpdateScope(data) {
+    await db.query(
+      "UPDATE scopes set title=$1, icon=$2, title_en=$3, description=$4, description_en=$5, image=$6 where id = $7",
+      [data?.title, data?.images, data?.title_en, data?.description, data?.description_en, data?.images, data?.id],
+    );
+  },
   async deleteScope(id) {
     return (await db.query("DELETE FROM scopes WHERE id=$1 RETURNING id", [id])).rows[0] ?? null;
   },
