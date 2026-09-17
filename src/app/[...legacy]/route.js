@@ -3,6 +3,7 @@ import { handleLegacyAboutsRead } from "@/server/controllers/legacy-abouts-read.
 import { handleLegacyAgenda } from "@/server/controllers/legacy-agenda.controller";
 import { handleLegacyContacts } from "@/server/controllers/legacy-contacts.controller";
 import { handleLegacyDataMenu } from "@/server/controllers/legacy-data-menu.controller";
+import { handleLegacyInstitutionsRead } from "@/server/controllers/legacy-institutions-read.controller";
 import { handleLegacyKdeksProfileRead } from "@/server/controllers/legacy-kdeks-profile-read.controller";
 import { handleLegacyKdeksProvinceProfileRead } from "@/server/controllers/legacy-kdeks-province-profile-read.controller";
 import { handleLegacyMaps } from "@/server/controllers/legacy-maps.controller";
@@ -34,6 +35,9 @@ async function dispatch(request) {
 
   const dataMenuResponse = await handleLegacyDataMenu(request);
   if (dataMenuResponse) return dataMenuResponse;
+
+  const institutionsReadResponse = await handleLegacyInstitutionsRead(request);
+  if (institutionsReadResponse) return institutionsReadResponse;
 
   const kdeksProfileReadResponse = await handleLegacyKdeksProfileRead(request);
   if (kdeksProfileReadResponse) return kdeksProfileReadResponse;
