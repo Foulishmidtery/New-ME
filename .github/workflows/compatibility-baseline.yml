@@ -43,6 +43,7 @@ jobs:
           node --check src/server/controllers/legacy-contacts.controller.js
           node --check src/server/controllers/legacy-maps.controller.js
           node --check src/server/controllers/legacy-province.controller.js
+          node --check src/server/controllers/legacy-social-media.controller.js
           node --check src/server/controllers/legacy-tagging.controller.js
           node --check src/server/repositories/zona-khas.repository.js
           node --check src/server/services/zona-khas.service.js
@@ -60,6 +61,7 @@ jobs:
           tests/legacy-reference-contract.test.mjs
           tests/legacy-zona-khas-contract.test.mjs
           tests/legacy-profile-basic-contract.test.mjs
+          tests/legacy-social-media-contract.test.mjs
 
       - name: Compare Old-BE route contract with New-ME manifest
         run: node scripts/compare-old-be-routes.mjs --old-be old-be
