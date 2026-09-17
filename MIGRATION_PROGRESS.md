@@ -4,7 +4,7 @@ Last updated: 2026-09-18
 
 Compatibility baseline: `Foulishmidtery/Old-BE@0984f0182738303627dab16fbec60c948e926e01`
 
-Latest substantive compatibility gate: **run #161 — success** (`8fabc6a611bddde65cace3cf4c1771afb94dfe2d`).
+Latest substantive compatibility gate: **run #161 — success** (`8fabc6a32e2d1ca06aee7a2017e6d9c37f9f39db`).
 
 ## Status model
 
@@ -352,7 +352,7 @@ Runtime DB: 🟡
 Browser: 🟡
 ```
 
-Compatibility gate: **run #161 — SUCCESS** at commit `8fabc6a611bddde65cace3cf4c1771afb94dfe2d`.
+Compatibility gate: **run #161 — SUCCESS** at commit `8fabc6a32e2d1ca06aee7a2017e6d9c37f9f39db`.
 
 ## Hot Issue main audit
 
@@ -466,7 +466,7 @@ The fallback remains intentional until each remaining domain has its own parity 
 - locked Old-BE route compatibility via `compare-old-be-routes.mjs`;
 - exact per-page role authorization compatibility via `compare-old-be-role-policies.mjs`.
 
-Latest substantive migration result: **GitHub Actions run #161 — SUCCESS** at commit `8fabc6a611bddde65cace3cf4c1771afb94dfe2d`.
+Latest substantive migration result: **GitHub Actions run #161 — SUCCESS** at commit `8fabc6a32e2d1ca06aee7a2017e6d9c37f9f39db`.
 
 This is source/static/automated parity only. It does not replace real DB/browser testing.
 
