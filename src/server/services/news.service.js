@@ -24,4 +24,8 @@ export const newsService = {
   legacyPostTypes: {
     list: (name) => newsRepository.getLegacyPostTypeRows(name),
   },
+
+  legacyPhoto: {
+    detail: (id) => newsRepository.getLegacyPhotoDetailRows(id),
+  },
 };
