@@ -14,6 +14,13 @@ export const hotissueService = {
   createSubcategory: (data) => hotissueRepository.createSubcategory(data),
   updateSubcategory: (id, data) => hotissueRepository.updateSubcategory(id, data),
   removeSubcategory: (id) => hotissueRepository.removeSubcategory(id),
+  legacySubcategory: {
+    list: () => hotissueRepository.listSubcategories(),
+    get: (id) => hotissueRepository.getSubcategory(id),
+    create: (data) => hotissueRepository.legacyCreateSubcategory(data),
+    update: (data) => hotissueRepository.legacyUpdateSubcategory(data),
+    remove: (id) => hotissueRepository.legacyRemoveSubcategory(id),
+  },
 
   // Hot Issues
   listIssues: () => hotissueRepository.listIssues(),
