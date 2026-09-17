@@ -6,5 +6,13 @@ export const newsService = {
   get: (id) => newsRepository.get(id),
   create: (data) => newsRepository.create(data),
   update: (id, data) => newsRepository.update(id, data),
-  remove: (id) => newsRepository.remove(id)
+  remove: (id) => newsRepository.remove(id),
+
+  legacyCategory: {
+    list: () => newsRepository.listLegacyCategories(),
+    detail: (id) => newsRepository.getLegacyCategoryRows(id),
+    create: (data) => newsRepository.createLegacyCategory(data),
+    update: (data) => newsRepository.updateLegacyCategory(data),
+    remove: (id) => newsRepository.deleteLegacyCategory(id),
+  },
 };
