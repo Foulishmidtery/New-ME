@@ -31,6 +31,10 @@ const subcategoryRepositorySource = repositorySource
 const legacySubcategoryRepositorySource = repositorySource
   .split("// Legacy Sub Category compatibility")[1]
   .split("// Hot Issues")[0];
+const legacySubcategoryExecutableSource = legacySubcategoryRepositorySource.replace(
+  /\/\/.*$/gm,
+  "",
+);
 
 test("Hot Issue Subcategory keeps the five exact Old-BE routes including insert typo", () => {
   for (const [method, pattern, handler] of [
@@ -74,8 +78,8 @@ test("Hot Issue Subcategory legacy mutations preserve split values and no RETURN
     /\[data\.title, data\.title_en, hcid\[0\], hcid\[1\], data\.id\]/,
   );
   assert.match(legacySubcategoryRepositorySource, /DELETE FROM hot_subcategories where id=\$1/);
-  assert.doesNotMatch(legacySubcategoryRepositorySource, /RETURNING/);
-  assert.doesNotMatch(legacySubcategoryRepositorySource, /writeFile|unlink|mkdir|fs\.|uploads?\//);
+  assert.doesNotMatch(legacySubcategoryExecutableSource, /RETURNING/);
+  assert.doesNotMatch(legacySubcategoryExecutableSource, /writeFile|unlink|mkdir|fs\.|uploads?\//);
 });
 
 test("Hot Issue Subcategory service stays HTTP independent", () => {
