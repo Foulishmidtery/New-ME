@@ -4,7 +4,7 @@ Last updated: 2026-09-17
 
 Compatibility baseline: `Foulishmidtery/Old-BE@0984f0182738303627dab16fbec60c948e926e01`
 
-Latest verified compatibility workflow: **run #131 — success** (`8014b3d120d6c9262b88c4718a4aabaea2e72cae`).
+Latest substantive compatibility gate before this documentation-only commit: **run #139 — success** (`b98d4af2b36a6585fd61e8e8382c213abac63efb`).
 
 ## Status model
 
@@ -54,6 +54,8 @@ Source/CI completion does not imply runtime completion.
 | Usia reference | ✅ | ✅ | — | 🟡 | `GET /usia` preserves ordering and repeated legacy IDs exactly. |
 | Roles lookup | ✅ | ✅ | 🟡 | 🟡 | `GET /roles` now uses a dedicated repository/service/controller with `SELECT * FROM roles`. |
 | Hot Issue Category CRUD | ✅ | ✅ | 🟡 | 🟡 | Five legacy category routes are native; no upload/filesystem side effect exists in this slice. |
+| Hot Issue Subcategory CRUD | ✅ | ✅ | 🟡 | 🟡 | Five exact Old-BE routes are native; historical insert-path typo and raw `hot_category_id.split('-')` semantics are retained. |
+| Hot Issue main CRUD | ❌ | ❌ | ❌ | ❌ | Upload-heavy: insert/update use `photo`, DB stores public upload URL, delete removes filesystem image. |
 | Route-specific upload parity | ❌ | ❌ | ❌ | ❌ | Must inventory each multipart route before migration. |
 | Legacy `.cjs` / adapter fallback | ⚠️ Active | ✅ covered as fallback | 🟡 | 🟡 | Still required for unmigrated domains, especially upload-heavy/security-sensitive flows. Native routes dispatch before this fallback. |
 
@@ -117,8 +119,6 @@ Runtime DB remains 🟡 for `/roles`; the static JSON references do not require 
 
 ## Hot Issue Category DB-only CRUD
 
-This task migrated exactly one low/medium-risk CRUD after the reference/read-only audit completed.
-
 Native legacy routes:
 
 - `GET /hotissuecategory`
@@ -142,7 +142,51 @@ Old-BE behavior retained:
 
 Implementation uses the existing HTTP-independent `hotissueService` and `hotissueRepository`, with a dedicated thin compatibility controller in `src/server/controllers/legacy-hotissue-category.controller.js`.
 
-`/hotissuesubcategory` and `/hotissue` media/content routes were intentionally not taken over by this controller.
+Current status:
+
+```text
+Source: ✅
+CI: ✅
+Runtime DB: 🟡
+Browser: 🟡
+```
+
+## Hot Issue Subcategory DB-only CRUD
+
+Native legacy routes are the exact locked Old-BE contract:
+
+- `GET /hotissuesubcategory`
+- `GET /detailhotissuesubcategory/:id`
+- `POST /inserthotissubcategory`
+- `POST /updatehotissuesubcategory`
+- `GET /deletehotissuesubcategory/:id`
+
+Important compatibility note: Old-BE really exposes the historical typo **`/inserthotissubcategory`**. New-ME does not silently add the corrected `/inserthotissuesubcategory` path.
+
+Preserved behavior:
+
+- source table `hot_subcategories`;
+- no added list ordering;
+- list empty result is HTTP 200 `{ "success": false }`;
+- detail success remains an array; missing detail remains HTTP 200 `{ "success": false }`;
+- insert fields are `title`, `title_en`, `hot_category_id`, with raw `hot_category_id.split('-')` producing `hot_category_id = hcid[0]` and `hot_category_name = hcid[1]`;
+- update uses body `id` and the same raw split behavior;
+- delete uses the path `id`;
+- insert/update/delete redirect to `/hisc` with HTTP 302;
+- compatibility mutation SQL intentionally uses no `RETURNING`;
+- no multipart parser, upload, file deletion, filesystem write or external service behavior exists in this slice.
+
+Native flow:
+
+```text
+legacy route
+  → legacy-hotissue-subcategory.controller.js
+  → hotissueService.legacySubcategory
+  → legacy Hot Issue Subcategory methods in hotissue.repository.js
+  → hot_subcategories
+```
+
+The generic adapter still contains the older Hot Issue routing block because the sibling `/hotissue` main domain remains upload-heavy. The five Subcategory request paths are nevertheless intercepted by the native controller before `handleLegacyApi`, so the adapter branch is inactive for these routes.
 
 Current status:
 
@@ -153,7 +197,21 @@ Runtime DB: 🟡
 Browser: 🟡
 ```
 
-CI run #130 initially failed because a negative test regex matched the valid string `inserthotissuecategory`. That was a test false-negative, not a source regression. The assertion was narrowed to exact sibling route boundaries; run #131 then passed without changing the controller or SQL implementation.
+CI run #138 initially failed only because the regression test searched the word `RETURNING` in a source comment that explicitly said the legacy SQL had no `RETURNING`. Executable SQL was already correct. The assertion was changed to inspect comment-stripped executable source; no production source change was needed. Run #139 then passed all syntax, regression, route-baseline and authorization-baseline checks.
+
+## Hot Issue main audit
+
+The main `/hotissue` CRUD is **not DB-only** and was not migrated in this task.
+
+Locked Old-BE behavior includes:
+
+- `POST /inserthotissue` → `hotissue_path.single("photo")`;
+- insert constructs `site_url + "/uploads/hot_issue/" + req.file.filename` and stores that public URL in `hot_issues.image`;
+- `POST /updatehotissue` also uses `hotissue_path.single("photo")` and has separate file/no-file SQL branches;
+- `GET /deletehotissue/:id/:foto` accepts the filename in the path and performs filesystem deletion with `fs.existsSync` / `fs.unlink` before/alongside DB deletion;
+- therefore its upload, replacement, public URL and delete semantics must be handled in the later route-specific upload-parity phase.
+
+It must stay on legacy/fallback for now.
 
 ## Native compatibility dispatch
 
@@ -167,39 +225,40 @@ CI run #130 initially failed because a negative test regex matched the valid str
 6. Data Menu
 7. Gender reference
 8. Hot Issue Category CRUD
-9. Institution reads
-10. KBLI reference
-11. KDEKS profile/reference reads
-12. KDEKS province profile reads
-13. Maps
-14. Menu / Submenu settings
-15. Negara reference
-16. Pembuka reference
-17. Peserta reference
-18. Prioritas reference
-19. Province
-20. Roles lookup
-21. Scopes
-22. Social Media / Post Social Media
-23. Tagging
-24. Usia reference
-25. Web Profile reads
-26. Web Profile DB-only settings
-27. Zona KHAS
-28. remaining routes → `legacy-handler-adapter.js`
+9. Hot Issue Subcategory CRUD
+10. Institution reads
+11. KBLI reference
+12. KDEKS profile/reference reads
+13. KDEKS province profile reads
+14. Maps
+15. Menu / Submenu settings
+16. Negara reference
+17. Pembuka reference
+18. Peserta reference
+19. Prioritas reference
+20. Province
+21. Roles lookup
+22. Scopes
+23. Social Media / Post Social Media
+24. Tagging
+25. Usia reference
+26. Web Profile reads
+27. Web Profile DB-only settings
+28. Zona KHAS
+29. remaining routes → `legacy-handler-adapter.js`
 
-The fallback remains intentional until each remaining domain has its own parity gate and runtime-sensitive behavior is verified. Native routes are intercepted before fallback; keeping the fallback code present is currently a safety measure, not evidence that the native route is unused.
+The fallback remains intentional until each remaining domain has its own parity gate and runtime-sensitive behavior is verified. Native routes are intercepted before fallback; keeping sibling fallback code present is currently a safety measure, not evidence that the native route is unused.
 
 ## Automated compatibility gate
 
 `.github/workflows/compatibility-baseline.yml` currently validates:
 
 - migrated source syntax with `node --check`;
-- all registered Node contract/regression tests;
+- all registered Node contract/regression tests, including Hot Issue Category and Subcategory;
 - locked Old-BE route compatibility via `compare-old-be-routes.mjs`;
 - exact per-page role authorization compatibility via `compare-old-be-role-policies.mjs`.
 
-Latest verified result: **GitHub Actions run #131 — SUCCESS** at commit `8014b3d120d6c9262b88c4718a4aabaea2e72cae`.
+Latest substantive migration result: **GitHub Actions run #139 — SUCCESS** at commit `b98d4af2b36a6585fd61e8e8382c213abac63efb`.
 
 This is source/static/automated parity only. It does not replace real DB/browser testing.
 
@@ -207,7 +266,7 @@ This is source/static/automated parity only. It does not replace real DB/browser
 
 Upload-heavy endpoints remain intentionally outside this phase. No global upload validator or new upload migration was introduced here.
 
-Still excluded include News upload, Files upload, Photo upload, Video upload, Institution `logo_member`, Structure, Directorate, KDEKS upload, banners/slideshow, Opini and other media/file mutations.
+Still excluded include the main Hot Issue CRUD, News upload, Files upload, Photo upload, Video upload, Institution `logo_member`, Structure, Directorate media uploads, KDEKS upload, banners/slideshow, Opini and other media/file mutations.
 
 Before any future upload domain is changed, inventory each Old-BE route for:
 
@@ -217,7 +276,7 @@ Before any future upload domain is changed, inventory each Old-BE route for:
 
 1. Recover the real New-ME `package.json` and lockfile from the actual development source; dependency reconstruction remains blocked until then.
 2. Keep runtime DB/browser verification 🟡 for source/CI-complete DB-backed slices until a runnable environment exists.
-3. Keep Institution `logo_member` and all other upload-heavy mutations on fallback.
-4. After this task, the next exact non-upload candidate should be audited from current Old-BE/New-ME source before implementation; do not infer safety from the domain name alone.
+3. Keep Institution `logo_member`, main Hot Issue, and all other upload-heavy mutations on fallback.
+4. **Next exact target: Directorate Division (`devisi`) DB-only CRUD.** Locked Old-BE routes use plain DB handlers without multer/filesystem calls; list reads `devisi`, insert/update preserve raw `directorats_id.split('-')`, delete is DB-only, and mutations redirect to `/devision`. This candidate must still receive its own audit → implementation → regression → CI cycle before being marked migrated.
 
 No domain above with 🟡 runtime status is considered fully production-complete yet.
