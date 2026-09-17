@@ -9,6 +9,7 @@ import { handleLegacyProvince } from "@/server/controllers/legacy-province.contr
 import { handleLegacyScopes } from "@/server/controllers/legacy-scopes.controller";
 import { handleLegacySocialMedia } from "@/server/controllers/legacy-social-media.controller";
 import { handleLegacyTagging } from "@/server/controllers/legacy-tagging.controller";
+import { handleLegacyWebProfileRead } from "@/server/controllers/legacy-web-profile-read.controller";
 import { handleLegacyZonaKhas } from "@/server/controllers/legacy-zona-khas.controller";
 import { handleLegacyApi } from "@/server/legacy-handler-adapter";
 
@@ -48,6 +49,9 @@ async function dispatch(request) {
 
   const taggingResponse = await handleLegacyTagging(request);
   if (taggingResponse) return taggingResponse;
+
+  const webProfileReadResponse = await handleLegacyWebProfileRead(request);
+  if (webProfileReadResponse) return webProfileReadResponse;
 
   const zonaKhasResponse = await handleLegacyZonaKhas(request);
   if (zonaKhasResponse) return zonaKhasResponse;
