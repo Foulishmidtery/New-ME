@@ -12,6 +12,7 @@ import { handleLegacyKdeksProvinceProfileRead } from "@/server/controllers/legac
 import { handleLegacyMaps } from "@/server/controllers/legacy-maps.controller";
 import { handleLegacyMenuSettings } from "@/server/controllers/legacy-menu-settings.controller";
 import { handleLegacyNegaraReference } from "@/server/controllers/legacy-negara-reference.controller";
+import { handleLegacyPembukaReference } from "@/server/controllers/legacy-pembuka-reference.controller";
 import { handleLegacyPesertaReference } from "@/server/controllers/legacy-peserta-reference.controller";
 import { handleLegacyProvince } from "@/server/controllers/legacy-province.controller";
 import { handleLegacyScopes } from "@/server/controllers/legacy-scopes.controller";
@@ -67,6 +68,9 @@ async function dispatch(request) {
 
   const negaraReferenceResponse = await handleLegacyNegaraReference(request);
   if (negaraReferenceResponse) return negaraReferenceResponse;
+
+  const pembukaReferenceResponse = await handleLegacyPembukaReference(request);
+  if (pembukaReferenceResponse) return pembukaReferenceResponse;
 
   const pesertaReferenceResponse = await handleLegacyPesertaReference(request);
   if (pesertaReferenceResponse) return pesertaReferenceResponse;
