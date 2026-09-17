@@ -148,5 +148,32 @@ export const newsRepository = {
 
   async remove(id) {
     return (await db.query("DELETE FROM news WHERE id = $1 RETURNING id", [id])).rows[0] ?? null;
+  },
+
+  // Legacy News Category compatibility
+  async listLegacyCategories() {
+    return (await db.query('SELECT * FROM news_categories')).rows;
+  },
+
+  async getLegacyCategoryRows(id) {
+    return (await db.query('SELECT * FROM news_categories where id = $1 ', [id])).rows;
+  },
+
+  async createLegacyCategory(data) {
+    await db.query(
+      "insert into news_categories(title,title_en,description,description_en) values($1,$2,$3,$4)",
+      [data.title, data.title_en, data.description, data.description_en],
+    );
+  },
+
+  async updateLegacyCategory(data) {
+    await db.query(
+      "update news_categories set title=$1,title_en=$2,description=$3,description_en=$4 where id = $5",
+      [data.title, data.title_en, data.description, data.description_en, data.id],
+    );
+  },
+
+  async deleteLegacyCategory(id) {
+    await db.query('DELETE FROM news_categories where id = $1 ', [id]);
   }
 };
