@@ -1,66 +1,70 @@
 # Laporan Migrasi Next.js CMS KNEKS
 
-Tanggal verifikasi: 2026-09-17
+Tanggal verifikasi: 2026-09-18
 
 Compatibility baseline: `Foulishmidtery/Old-BE@0984f0182738303627dab16fbec60c948e926e01`
 
-Laporan ini membedakan **source/CI parity** dari **runtime DB/browser parity**. Status detail per domain tersedia di `MIGRATION_PROGRESS.md`.
+`MIGRATION_PROGRESS.md` adalah **source of truth detail**. Dokumen ini hanya merangkum status terbaru dan tidak boleh digunakan untuk mengoverride progress/source aktual.
 
 ## Ringkasan terkini
 
-- 149 legacy HTML view tetap telah dipetakan ke App Router/JSX; pemetaan view **tidak dianggap sebagai bukti behavior parity**.
-- Manifest route legacy tetap dipertahankan dan dibandingkan otomatis dengan Old-BE yang dikunci.
-- Compatibility migration sudah bergerak dari satu contoh Data Menu menjadi beberapa native compatibility controller/service/repository.
-- CMS per-page role authorization sekarang diambil dari policy aktual Old-BE, bukan satu guard generik untuk seluruh `/cms`.
-- Source/contract migration sudah tersedia untuk Auth, storage alias, Data Menu, Agenda, Province, Tagging, Zona KHAS, Contacts/Questbook, Maps, Social Media/Post Social Media, Scopes, beberapa Profile/reference read, Web Profile, dan Menu/Submenu settings.
-- `legacy-handler-adapter.js` tetap aktif sebagai fallback untuk route/domain yang belum dinyatakan parity.
-- Upload-heavy domain belum boleh dianggap selesai; setiap route upload harus diaudit secara individual sebelum dipindahkan dari fallback.
-- Full reproducible application build masih **blocked** karena `package.json` / lockfile asli belum tracked pada snapshot repository. Dependency tidak direkonstruksi dengan menebak versi.
+Migrasi New-ME dilakukan secara bertahap dengan Old-BE sebagai reference implementation karena kontrak API masih dipakai frontend production. Native compatibility path dijalankan sebelum `legacy-handler-adapter.js`; fallback tetap dipertahankan untuk domain yang belum memiliki parity gate sendiri, terutama upload-heavy dan runtime-sensitive flows.
+
+Source/CI compatibility yang saat ini sudah tersedia mencakup antara lain:
+
+- Auth dan legacy cookie/SSO contract;
+- storage aliases;
+- CMS per-page authorization;
+- Data Menu;
+- Agenda;
+- Province;
+- Tagging;
+- Zona KHAS;
+- Contacts / Questbook;
+- Maps;
+- Social Media / Post Social Media;
+- Scopes;
+- About / Ekonomi Syariah read-only;
+- KDEKS About / History / Maps reads;
+- KDEKS province About / History reads;
+- Web Profile reads dan DB-only settings;
+- Menu / Submenu settings;
+- Institution read-only;
+- static/reference slices (`kbli`, `peserta`, `area`, `gender`, `negara`, `pembuka`, `prioritas`, `usia`);
+- Roles lookup;
+- Hot Issue Category CRUD;
+- Hot Issue Subcategory CRUD;
+- Directorate Division (`devisi`) CRUD;
+- News Category CRUD;
+- News category/date read-filter;
+- `GET /posts/type/:name` untuk production values yang terbukti digunakan: `photos` dan `videos`.
+
+Status Source ✅ / CI ✅ pada slice DB-backed di atas tidak otomatis berarti live DB/browser parity. Runtime DB/browser tetap 🟡 sampai environment nyata tersedia dan diuji.
+
+Full reproducible application build juga masih **blocked** karena `package.json` / lockfile asli belum tracked pada snapshot repository. Dependency tidak boleh direkonstruksi dengan menebak versi.
 
 ## Automated compatibility baseline
 
-`.github/workflows/compatibility-baseline.yml` sekarang menjalankan:
+`.github/workflows/compatibility-baseline.yml` menjalankan:
 
 1. `node --check` terhadap source migrasi yang terdaftar;
 2. Node contract/regression tests;
-3. `scripts/compare-old-be-routes.mjs` terhadap checkout Old-BE commit terkunci;
-4. `scripts/compare-old-be-role-policies.mjs` untuk membandingkan page authorization New-ME dengan `Old-BE/app.js`.
+3. `scripts/compare-old-be-routes.mjs` terhadap Old-BE commit terkunci;
+4. `scripts/compare-old-be-role-policies.mjs` untuk authorization parity.
 
-Latest verified result:
+Latest substantive verified result:
 
-- **GitHub Actions run #75**
-- commit `8ff3e2717cf76d907e5cf40ef819c923ae958d3f`
+- **GitHub Actions run #169**
+- commit `16a4c7689c6b3b07405242cbe8e524e6381f8af4`
 - conclusion: **SUCCESS**
 
-Hasil ini membuktikan source/static/automated contract pada scope yang terdaftar. Hasil tersebut **bukan** bukti live PostgreSQL, cookie browser, frontend production, upload real, atau upstream integration parity.
+Run tersebut sudah mencakup regression untuk News post-type selain regression lama seperti News Category, News read-filter, Directorate Division, Hot Issue Category/Subcategory, route comparator dan role-policy comparator.
 
-## CMS per-page authorization
-
-Old-BE tidak menggunakan satu role rule untuk semua halaman. Setiap page route membaca `req.cookies.roles_id` dengan kombinasi role yang berbeda dan, jika ditolak, melakukan `res.redirect('/')`.
-
-New-ME sekarang memakai:
-
-- `src/config/role-policies.js`
-- `src/server/auth/session.js`
-- `src/server/auth/authorization.js`
-- `src/middleware.js`
-- `tests/cms-authorization.test.mjs`
-- `scripts/compare-old-be-role-policies.mjs`
-
-Behavior yang dipertahankan:
-
-- cookie page guard: `roles_id`;
-- missing/invalid role ditolak pada protected page;
-- role matrix berbeda per halaman;
-- unauthorized response menggunakan **302** ke `/`;
-- halaman Old-BE yang tidak mempunyai role guard tidak otomatis diberi requirement `islogin` baru;
-- dynamic New-ME page route dipetakan kembali ke legacy page policy yang tepat.
-
-Policy checker membaca source Old-BE yang dikunci dan membuat CI gagal bila ada policy yang hilang, ditambah tanpa baseline, atau role-nya melebar/menyempit.
+CI ini membuktikan source/static/automated compatibility pada scope yang terdaftar. CI tidak membuktikan live PostgreSQL side effects, browser cookies, production frontend behavior, real upload, atau external integration parity.
 
 ## Native compatibility architecture
 
-Target flow yang digunakan pada domain yang sudah diekstrak:
+Pola target untuk slice yang diekstrak:
 
 ```text
 legacy route
@@ -74,186 +78,122 @@ domain repository
 PostgreSQL
 ```
 
-Controller native dijalankan sebelum `legacy-handler-adapter.js`. Fallback hanya menangani route yang belum dipindahkan.
+Controller native dijalankan sebelum generic adapter. Service/repository tidak menerima `req/res` pada compatibility path yang sudah diekstrak.
 
-Domain/slice yang saat ini memiliki native compatibility path mencakup:
+## News compatibility status terbaru
 
-- Auth;
-- About / Ekonomi Syariah read-only;
-- Agenda;
-- Contacts / Questbook;
-- Data Menu;
-- KDEKS About/History/Maps reference reads;
-- Maps;
-- Menu / Submenu settings;
-- Province;
-- Scopes;
-- Social Media / Post Social Media;
-- Tagging;
-- Web Profile reads + DB-only settings mutations;
-- Zona KHAS.
+### News Category CRUD
 
-## Compatibility behavior yang sudah dikunci
+Native compatibility sudah mencakup:
 
-### Auth
+- `GET /categories`
+- `GET /detailnewscategory/:id`
+- `POST /insertnewscategory`
+- `POST /updatenewscategory`
+- `GET /deletenewscategory/:id`
 
-- local login response tidak menambah internal `user` object;
-- host-only local cookie contract dipertahankan;
-- SSO cookie tetap domain `.kneks.go.id`, `Secure`, `SameSite=None`;
-- SSO expiry dikembalikan ke behavior Old-BE sekitar 24 hari;
-- SSO logout membersihkan cookie dengan domain scope yang sama.
+Old-BE empty behavior, field mapping, ID source, redirects dan no-`RETURNING` mutation semantics dipertahankan. Main News upload tidak ikut dipindahkan.
 
-### Storage aliases
+### News category/date read-filter
 
-Alias Old-BE berikut kembali tersedia pada source compatibility path:
+Native compatibility sudah mencakup:
 
-- `/storage/news`
-- `/storage/hot_issue`
-- `/storage/photo`
-- `/storage/structure`
-- `/storage/filesupload`
+- `GET /news_category/cat/:id`
+- `GET /news/search/:date`
 
-Traversal diblok dan file serving mendukung HEAD/range behavior. Live file parity tetap perlu runtime environment.
+Category filter tetap `ORDER BY news_datetime DESC` dan empty `[]`. Date filter tetap `LIKE '%date%'`, tanpa ordering, dengan empty `{success:false}`. Existing modern keyword `newsService.search()` tetap terpisah.
 
-### Data Menu
+### `GET /posts/type/:name`
 
-Legacy path mempertahankan:
+Endpoint ini baru dipindahkan setelah compatibility evidence audit menemukan consumer nyata untuk:
 
-- `SELECT * FROM data_menu` tanpa menambah ordering;
-- tidak menambah required-field validation baru;
-- HTTP 200 + `{success:false}` untuk empty result;
-- redirect mutation ke `/menu_data`.
+```text
+photos
+videos
+```
 
-Modern `/api/data-menus` tetap additive dan terpisah.
+Evidence berasal dari source frontend React KNEKS dan legacy CMS views yang secara eksplisit memakai `/posts/type/photos` dan `/posts/type/videos`.
 
-### Agenda
+Old-BE sebelumnya membentuk SQL identifier secara langsung dengan `SELECT * FROM news_ + name`. New-ME tidak mewarisi konstruksi unsafe tersebut. Repository menggunakan fixed query mapping:
 
-Legacy path mempertahankan:
+```text
+photos → SELECT * FROM news_photos
+videos → SELECT * FROM news_videos
+```
 
-- `ORDER BY agenda_datetime DESC`;
-- search `LIKE` + historical search cap;
-- create/update datetime quirks;
-- update side effect pada `created_at`/`updated_at`;
-- historical `/agenda_graph` response mapping;
-- redirect `/a`.
+Observable contract legitimate values tetap dipertahankan:
 
-### Zona KHAS
+- tidak menambah `ORDER BY`, `LIMIT`, `OFFSET`, atau pagination;
+- zero rows → HTTP 200 `{success:false}`;
+- `photos` memakai historical photo response mapping, termasuk `ph = photo?.split('/')[5]`;
+- `videos` memakai historical non-photo/video response mapping, termasuk `video`, `duration`, dan `videos_datetime`;
+- tidak ada multipart/filesystem behavior pada read endpoint ini.
 
-Legacy path mempertahankan:
+Unsupported `:name` sekarang ditolak sebelum repository access. Ini adalah intentional security boundary; parity penuh tidak diklaim untuk unsupported/malicious input yang Old-BE sebelumnya teruskan ke dynamic SQL.
 
-- province `ORDER BY id DESC`;
-- nested `zonakhas` per province;
-- inauguration/inaugurated NULL semantics berdasarkan status;
-- legacy empty result behavior;
-- redirect `/zk`.
+Status:
 
-### Scopes
-
-Legacy Scope path mempertahankan historical update behavior Old-BE, termasuk kondisi lama yang secara praktis selalu menulis `icon` dan `image` dari field `images`. Modern path tidak dipaksa mewarisi quirk tersebut.
-
-### About / Ekonomi Syariah
-
-Native read-only endpoints:
-
-- `GET /es_abouts`
-- `GET /es_detailabouts/:id`
-- `GET /abouts`
-- `GET /detailabouts/:id`
-
-Upload-capable update routes sengaja tetap fallback.
-
-### KDEKS profile/reference reads
-
-Native read-only endpoints:
-
-- `GET /api_kdeks_list`
-- `GET /api_about_kdeks`
-- `GET /api_history_kdeks`
-- `GET /api_maps_kdeks`
-
-Static About/History endpoints mempertahankan array response, termasuk empty array. Maps mempertahankan success/data shape dan historical 500 failure response.
-
-Province-specific KDEKS About/History route belum digabung ke slice ini karena response shaping-nya berbeda dan harus diuji terpisah.
-
-### Web Profile
-
-Native reads:
-
-- `GET /api_web_profile`
-- `GET /api_detail_webprofile/:id`
-
-Native DB-only mutations:
-
-- `POST /updatewebtitle` → `/titleweb`
-- `POST /updateweblogo` → `/logo`
-- `POST /updatewebheader` → `/header`
-- `POST /updatewebcolor` → `/color`
-
-SQL field/request body/302 redirect semantics mengikuti Old-BE dan tidak menambah `RETURNING` atau validation baru.
-
-### Menu / Submenu settings
-
-Native routes:
-
-- `GET /api_menu`
-- `GET /api_menu_detail/:id`
-- `GET /api_submenu`
-- `GET /api_submenu_detail/:id`
-- `POST /insertmenu`
-- `POST /updatemenu`
-- `POST /insertsubmenu`
-- `POST /updatesubmenu`
-
-Old-BE `menu_id.split('-')` behavior dipertahankan tanpa coercion baru. Mutations tetap redirect ke `/menu` atau `/submenu`.
+```text
+Source: ✅
+CI: ✅
+Runtime DB: 🟡
+Browser: 🟡
+```
 
 ## Upload parity boundary
 
-Existing transitional upload helpers **tidak boleh dianggap satu global contract untuk seluruh endpoint legacy**.
+Upload-heavy routes tetap tidak boleh dianggap selesai hanya karena sibling read route sudah native.
 
-Sebelum suatu upload-heavy domain dipindahkan dari fallback, wajib dibuat inventory per route:
+Tetap fallback antara lain:
 
-```text
-Route
-HTTP method
-multipart field name
-single/multiple
-accepted file behavior
-filter/MIME behavior
-destination folder
-filename behavior
-DB value/public URL
-replace semantics
-delete semantics
-no-file behavior
-error behavior
-redirect
-```
+- Main News `POST /insertnews`, `POST /updatenews`, `GET /deletenews/:id/:foto`;
+- Hot Issue main upload CRUD;
+- Files upload/update/delete;
+- Photo insert/update/delete;
+- Video mutations;
+- Institution `logo_member` mutations;
+- Structure dan Structure KDEKS media;
+- Directorate images/banner;
+- KDEKS upload;
+- banners/slideshow;
+- Opini upload.
 
-Domain yang termasuk upload-heavy antara lain News, Files, Photo, Structure, KDEKS, Directorate, Banners, Institutions, Opini dan slider/media lain.
-
-Shared helper hanya boleh dibuat setelah inventory domain menunjukkan bahwa helper tersebut dapat mempertahankan variasi contract masing-masing route.
+Setiap route upload harus diaudit individual: multipart field, single/multiple, filter/MIME, destination, filename, DB/public URL, replacement, deletion, no-file behavior, error response dan redirect.
 
 ## Runtime verification yang belum tersedia
 
-Karena dependency manifest asli belum tracked dan dev runtime/database belum tersedia pada verification environment, hal berikut belum dapat dinyatakan parity penuh:
+Karena dependency manifest asli dan runnable verification environment belum tersedia, hal berikut tetap pending:
 
-- clean `npm ci` + production build dari repository saja;
-- live PostgreSQL CRUD side effects;
-- real login/SSO cookie behavior di browser;
-- frontend production smoke test;
+- clean install/build dari repository saja;
+- live PostgreSQL query/side-effect parity;
+- browser login/SSO/session behavior;
+- production frontend smoke test;
 - real multipart upload/replace/delete;
-- Tax/KHAS/SPES upstream integration behavior.
+- upstream integration behavior.
 
-Untuk domain yang source/CI sudah hijau, status runtime tetap **🟡 perlu verifikasi**.
+Untuk slice dengan source/CI hijau, runtime/browser tetap **🟡 perlu verifikasi** kecuali sudah diuji langsung.
 
-## Next safe migration target
+## Next safe migration stage
 
-Urutan berikutnya tetap mengikuti dependency dan risiko:
+Next exact target yang sudah diaudit tetapi **belum diimplementasikan**:
 
-1. audit + migrate **province-specific KDEKS profile/reference reads** (`/api_history_province_kdeks/:id`, `/api_about_province_kdeks/:id`) sebagai slice terpisah;
-2. lanjutkan non-upload/reference domain lain satu per satu dengan gate yang sama;
-3. tunda Users/security-sensitive mutations sampai reference/content reads stabil;
-4. setelah non-upload stabil, mulai upload inventory per domain; jangan mengaktifkan global upload behavior sebagai pengganti contract route-specific;
-5. lakukan runtime golden-master test saat manifest dependency asli, DB dev dan browser environment tersedia.
+```text
+GET /photodetail/:id
+```
 
-Tidak ada upload-heavy fallback yang dilepas pada tahap ini.
+Old-BE behavior:
+
+```sql
+SELECT * FROM  news_photos where id=$1
+```
+
+- ID berasal dari path;
+- success → raw rows array, HTTP 200;
+- empty → HTTP 200 `{success:false}`;
+- tanpa ordering/pagination;
+- tidak menggunakan cookie/auth di handler;
+- tidak melibatkan multipart atau filesystem.
+
+New-ME saat ini masih menyediakan `photodetail` melalui legacy `handlers/news.cjs`, sehingga route tersebut masih fallback.
+
+Scope berikut harus **hanya** `GET /photodetail/:id`. Sibling Photo mutations (`insertphoto`, `updatephoto`, `deletephoto`) tetap upload/filesystem boundary dan tidak boleh ikut dimigrasikan pada slice read-only ini.
