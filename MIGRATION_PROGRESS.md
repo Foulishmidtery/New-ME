@@ -4,7 +4,7 @@ Last updated: 2026-09-18
 
 Compatibility baseline: `Foulishmidtery/Old-BE@0984f0182738303627dab16fbec60c948e926e01`
 
-Latest substantive compatibility gate: **run #169 — SUCCESS** (`16a4c7689c6b3b07405242cbe8e524e6381f8af4`).
+Latest substantive compatibility gate: **run #177 — SUCCESS** (`93153934b6261ea739d5f1a9b6cac8cd8a08e4b1`).
 
 `MIGRATION_PROGRESS.md` is the detailed source of truth. `MIGRATION_REPORT.md` is a shorter status report and must not override this file.
 
@@ -61,6 +61,7 @@ Source/CI completion never implies runtime completion.
 | News Category CRUD | ✅ | ✅ | 🟡 | 🟡 | Five DB-only category routes native. |
 | News category/date read-filter | ✅ | ✅ | 🟡 | 🟡 | `/news_category/cat/:id` and `/news/search/:date` native with distinct Old-BE empty/order semantics. |
 | News post-type read | ✅ | ✅ | 🟡 | 🟡 | `GET /posts/type/:name` native for evidence-backed production values `photos` and `videos`; unsupported names are intentionally security-hardened. |
+| Photo detail read | ✅ | ✅ | 🟡 | 🟡 | `GET /photodetail/:id` native with exact raw-row SQL/empty response contract; Photo mutations remain fallback. |
 | Hot Issue main CRUD | ❌ | ❌ | ❌ | ❌ | Upload-heavy; stays fallback. |
 | Main News upload CRUD | ❌ | ❌ | ❌ | ❌ | `insertnews`, `updatenews`, `deletenews` remain fallback/upload boundary. |
 | Photo mutations | ❌ | ❌ | ❌ | ❌ | Multipart/filesystem behavior not migrated. |
@@ -106,19 +107,20 @@ Controllers read HTTP inputs and shape HTTP responses. Services/repositories do 
 18. News Category CRUD
 19. News category/date read-filter
 20. News post-type read (`/posts/type/:name`)
-21. Pembuka reference
-22. Peserta reference
-23. Prioritas reference
-24. Province
-25. Roles lookup
-26. Scopes
-27. Social Media / Post Social Media
-28. Tagging
-29. Usia reference
-30. Web Profile reads
-31. Web Profile DB-only settings
-32. Zona KHAS
-33. remaining routes → `legacy-handler-adapter.js`
+21. Photo detail read (`/photodetail/:id`)
+22. Pembuka reference
+23. Peserta reference
+24. Prioritas reference
+25. Province
+26. Roles lookup
+27. Scopes
+28. Social Media / Post Social Media
+29. Tagging
+30. Usia reference
+31. Web Profile reads
+32. Web Profile DB-only settings
+33. Zona KHAS
+34. remaining routes → `legacy-handler-adapter.js`
 
 Keeping sibling fallback code present is intentional; it does not mean the native paths above are unused.
 
@@ -297,6 +299,67 @@ Runtime DB: 🟡
 Browser: 🟡
 ```
 
+## Photo detail read — `GET /photodetail/:id`
+
+Locked Old-BE route:
+
+```text
+GET /photodetail/:id → photodetail
+```
+
+Exact compatibility SQL:
+
+```sql
+SELECT * FROM  news_photos where id=$1
+```
+
+with path `id` bound directly to `$1`.
+
+Preserved observable contract:
+
+- matching row(s) → raw DB rows array, HTTP 200;
+- no row → HTTP 200 `{ "success": false }`;
+- no `ORDER BY`, `LIMIT`, `OFFSET` or pagination;
+- no custom mapping;
+- no derived `ph` field;
+- no auth/cookie requirement in this API handler;
+- no multipart/file processing, filesystem side effect or upload URL generation.
+
+This route deliberately does **not** reuse `/posts/type/photos`, because that endpoint has a different historical contract and adds `ph = photo?.split('/')[5]`.
+
+Native flow:
+
+```text
+GET /photodetail/:id
+  → legacy-photo-detail.controller.js
+  → newsService.legacyPhoto.detail(id)
+  → newsRepository.getLegacyPhotoDetailRows(id)
+  → news_photos
+```
+
+Sibling Photo mutations remain on the generic fallback and were not modified:
+
+- `POST /insertphoto` (`photo_path.single("photo")`);
+- `POST /updatephoto` (`photo_path.single("photo")`, with file/no-file branches);
+- `GET /deletephoto/:id/:foto` (filesystem deletion semantics).
+
+Compatibility gate:
+
+```text
+GitHub Actions run #177
+HEAD: 93153934b6261ea739d5f1a9b6cac8cd8a08e4b1
+Conclusion: SUCCESS
+```
+
+Status:
+
+```text
+Source: ✅
+CI: ✅
+Runtime DB: 🟡
+Browser: 🟡
+```
+
 ## Selected earlier DB-only slices
 
 The following important slices remain source/CI complete under their existing dedicated regression gates:
@@ -353,62 +416,64 @@ Do not raise 🟡 to ✅ without real verification of the applicable behavior, i
 
 The missing real `package.json` / lockfile remains a dependency reproducibility blocker. Do not create guessed manifests.
 
-## Next target audit — Photo detail read
+## Next target audit — Video detail read
 
 Exactly one next DB-only candidate has been audited; it is **not implemented in this task**.
 
 ### Next exact target
 
 ```text
-GET /photodetail/:id
+GET /videodetail/:id
 ```
 
 Locked Old-BE route:
 
 ```text
-GET /photodetail/:id → photodetail
+GET /videodetail/:id → videodetail
 ```
 
 Old-BE handler behavior:
 
 ```sql
-SELECT * FROM  news_photos where id=$1
+SELECT * FROM  news_videos where id=$1
 ```
 
-with path `id` bound as `[id_ph]`.
+with path `id` bound as `[id_vid]`.
 
 Observable response contract:
 
 - matching row(s) → raw rows array, HTTP 200;
 - no row → HTTP 200 `{ "success": false }`;
-- no ordering, limit, offset or pagination;
+- no `ORDER BY`, `LIMIT`, `OFFSET` or pagination;
 - no cookie/auth logic in the API handler;
-- no multipart, filesystem write/delete or public upload URL creation in this read handler.
+- no multipart, filesystem write/delete or public upload URL generation in this read handler.
 
-New-ME currently still exposes `photodetail` through `src/server/repositories/handlers/news.cjs` via `legacyHandlers`; there is no dedicated Photo detail controller/service/repository compatibility path yet.
+New-ME still exposes `videodetail` from `src/server/repositories/handlers/news.cjs` through `legacyHandlers`; there is no dedicated Video detail controller/service/repository compatibility method yet. Existing `getLegacyPostTypeRows("videos")` is a list contract and must not be reused for detail filtering in memory.
 
-Sibling Photo routes remain outside this target:
+Sibling Video mutations remain outside this target:
 
-- `POST /insertphoto` uses `photo_path.single("photo")`;
-- `POST /updatephoto` uses `photo_path.single("photo")`;
-- `GET /deletephoto/:id/:foto` has filesystem deletion semantics.
+- `POST /insertvideo`;
+- `POST /updatevideo`;
+- `GET /deletevideo/:id`.
 
-Therefore the next task, if continued, must migrate **only `GET /photodetail/:id`** and must leave all Photo mutations on fallback.
+The Video mutations are DB-backed rather than multipart in the locked Old-BE source, but they are explicitly outside the current task and require their own later audit/slice decision.
+
+Therefore the next exact target, if continued, is **only `GET /videodetail/:id`**.
 
 ## Automated compatibility gate
 
 `.github/workflows/compatibility-baseline.yml` validates:
 
 - `node --check` for registered migrated source;
-- all registered Node compatibility/regression tests, including News Category, News read-filter and News post-type;
+- all registered Node compatibility/regression tests, including News Category, News read-filter, News post-type and Photo detail;
 - locked Old-BE route comparison;
 - CMS role-policy comparison.
 
 Latest substantive result:
 
 ```text
-Run #169 — SUCCESS
-Commit: 16a4c7689c6b3b07405242cbe8e524e6381f8af4
+Run #177 — SUCCESS
+Commit: 93153934b6261ea739d5f1a9b6cac8cd8a08e4b1
 ```
 
 This remains source/static/automated parity only. It does not replace real DB/browser verification.
