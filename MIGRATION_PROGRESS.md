@@ -4,7 +4,7 @@ Last updated: 2026-09-18
 
 Compatibility baseline: `Foulishmidtery/Old-BE@0984f0182738303627dab16fbec60c948e926e01`
 
-Latest substantive compatibility gate: **run #177 — SUCCESS** (`93153934b6261ea739d5f1a9b6cac8cd8a08e4b1`).
+Latest substantive compatibility gate: **run #185 — SUCCESS** (`e0cc06dabefaa06bf21d4fbc3417641a4ee6f872`).
 
 `MIGRATION_PROGRESS.md` is the detailed source of truth. `MIGRATION_REPORT.md` is a shorter status report and must not override this file.
 
@@ -62,10 +62,11 @@ Source/CI completion never implies runtime completion.
 | News category/date read-filter | ✅ | ✅ | 🟡 | 🟡 | `/news_category/cat/:id` and `/news/search/:date` native with distinct Old-BE empty/order semantics. |
 | News post-type read | ✅ | ✅ | 🟡 | 🟡 | `GET /posts/type/:name` native for evidence-backed production values `photos` and `videos`; unsupported names are intentionally security-hardened. |
 | Photo detail read | ✅ | ✅ | 🟡 | 🟡 | `GET /photodetail/:id` native with exact raw-row SQL/empty response contract; Photo mutations remain fallback. |
+| Video detail read | ✅ | ✅ | 🟡 | 🟡 | `GET /videodetail/:id` native with exact raw-row SQL/empty response contract; Video mutations remain fallback. |
 | Hot Issue main CRUD | ❌ | ❌ | ❌ | ❌ | Upload-heavy; stays fallback. |
 | Main News upload CRUD | ❌ | ❌ | ❌ | ❌ | `insertnews`, `updatenews`, `deletenews` remain fallback/upload boundary. |
 | Photo mutations | ❌ | ❌ | ❌ | ❌ | Multipart/filesystem behavior not migrated. |
-| Video mutations | ❌ | ❌ | ❌ | ❌ | Kept outside current read-only extraction. |
+| Video mutations | ❌ | ❌ | ❌ | ❌ | Explicitly outside the read-only extraction phase. |
 | Route-specific upload parity | ❌ | ❌ | ❌ | ❌ | Must inventory every multipart route before migration. |
 | Legacy `.cjs` / adapter fallback | ⚠️ Active | ✅ covered as fallback | 🟡 | 🟡 | Still required for unmigrated and runtime-sensitive domains. |
 
@@ -108,19 +109,20 @@ Controllers read HTTP inputs and shape HTTP responses. Services/repositories do 
 19. News category/date read-filter
 20. News post-type read (`/posts/type/:name`)
 21. Photo detail read (`/photodetail/:id`)
-22. Pembuka reference
-23. Peserta reference
-24. Prioritas reference
-25. Province
-26. Roles lookup
-27. Scopes
-28. Social Media / Post Social Media
-29. Tagging
-30. Usia reference
-31. Web Profile reads
-32. Web Profile DB-only settings
-33. Zona KHAS
-34. remaining routes → `legacy-handler-adapter.js`
+22. Video detail read (`/videodetail/:id`)
+23. Pembuka reference
+24. Peserta reference
+25. Prioritas reference
+26. Province
+27. Roles lookup
+28. Scopes
+29. Social Media / Post Social Media
+30. Tagging
+31. Usia reference
+32. Web Profile reads
+33. Web Profile DB-only settings
+34. Zona KHAS
+35. remaining routes → `legacy-handler-adapter.js`
 
 Keeping sibling fallback code present is intentional; it does not mean the native paths above are unused.
 
@@ -360,6 +362,66 @@ Runtime DB: 🟡
 Browser: 🟡
 ```
 
+## Video detail read — `GET /videodetail/:id`
+
+Locked Old-BE route:
+
+```text
+GET /videodetail/:id → videodetail
+```
+
+Exact compatibility SQL:
+
+```sql
+SELECT * FROM  news_videos where id=$1
+```
+
+with path `id` bound directly to `$1`.
+
+Preserved observable contract:
+
+- matching row(s) → raw DB rows array, HTTP 200;
+- no row → HTTP 200 `{ "success": false }`;
+- no `ORDER BY`, `LIMIT`, `OFFSET` or pagination;
+- no custom mapping or transformation;
+- no auth/cookie requirement in this API handler;
+- no multipart/file processing or filesystem side effect.
+
+This route deliberately does **not** reuse `/posts/type/videos`, because that route is a mapped list contract rather than an ID detail query.
+
+Native flow:
+
+```text
+GET /videodetail/:id
+  → legacy-video-detail.controller.js
+  → newsService.legacyVideo.detail(id)
+  → newsRepository.getLegacyVideoDetailRows(id)
+  → news_videos
+```
+
+Sibling Video mutations remain on the generic fallback and were not modified:
+
+- `POST /insertvideo`;
+- `POST /updatevideo`;
+- `GET /deletevideo/:id`.
+
+Compatibility gate:
+
+```text
+GitHub Actions run #185
+HEAD: e0cc06dabefaa06bf21d4fbc3417641a4ee6f872
+Conclusion: SUCCESS
+```
+
+Status:
+
+```text
+Source: ✅
+CI: ✅
+Runtime DB: 🟡
+Browser: 🟡
+```
+
 ## Selected earlier DB-only slices
 
 The following important slices remain source/CI complete under their existing dedicated regression gates:
@@ -374,6 +436,59 @@ The following important slices remain source/CI complete under their existing de
 - all static/reference reads listed in the status table.
 
 Their runtime DB/browser statuses remain 🟡 unless explicitly verified in a real environment.
+
+## Remaining DB-only/read-only audit
+
+After completing Video detail, the remaining fallback was re-audited against the locked Old-BE manifest/source, current native dispatch and legacy handlers before selecting the next target.
+
+Key safe/read-only candidates found:
+
+| Candidate | Old-BE behavior | Current New-ME state | Audit decision |
+| --- | --- | --- | --- |
+| `GET /newsdetail/:id` | `SELECT * FROM news where id=$1`; custom single-row mapping wrapped in an array; derives `img`; empty `[]` | fallback in `handlers/news.cjs` | Safe read-only, but response mapping is more complex than raw-row candidates. |
+| `GET /api_news_kdeks` | KDEKS news list ordered `id ASC`; per-row category lookup and mapped response | fallback in `handlers/news.cjs` | Read-only but N+1/category dependency makes it a larger compatibility slice. |
+| `GET /api_news_detail_kdeks/:id` | `SELECT * FROM news where id = $1 AND web_identity = 'kdeks'`; raw rows; empty `{success:false}` | fallback in `handlers/news.cjs` | **Safest next isolated candidate.** |
+| `GET /api_newscategory_kdeks` | `SELECT * FROM news_categories where web_identity = 'kdeks'`; raw rows; empty `{success:false}` | fallback in `handlers/news.cjs` | Safe DB-only read. |
+| `GET /api_detailnewscategory_kdeks/:id` | category `id` + `web_identity='kdeks'`; raw rows; empty `{success:false}` | fallback in `handlers/news.cjs` | Safe DB-only read. |
+| `GET /api_dashboard` / `GET /api_dashboard_detail/:id` | direct `data_dashboard` reads; raw rows; empty `{success:false}` | fallback in `handlers/data.cjs` | Safe reads, but dashboard domain also contains multiple write/narration routes; keep separate. |
+| `GET /api_opini` / `GET /api_opini_detail/:id` | direct `opini` reads; raw rows; empty `{success:false}` | fallback | Safe reads, but Opini upload mutations remain a separate media boundary. |
+| `GET /slideshow` / `GET /detailslideshow/:id` | direct slideshow reads; raw rows; empty `{success:false}` | fallback in `handlers/banners.cjs` | Read-only, but slideshow is an upload-heavy media domain and is deferred. |
+| `GET /posts` | role-cookie dependent list, category lookup and custom mapping | fallback in `handlers/news.cjs` | Not first: cookie-dependent and materially more complex. |
+| `GET /search_posts` | string-concatenated search SQL across news/photos/videos + mapped news rows | fallback in `handlers/news.cjs` | Defer: dynamic SQL/security and multi-table contract need a dedicated audit. |
+| `GET /api/newspaging` | legacy paging arithmetic + `LIMIT $1, $2` contract | fallback | Defer until PostgreSQL/runtime behavior is verified. |
+
+Users/approval/IP-whitelist/password routes remain intentionally outside this read-only phase. Upload/file mutation domains also remain outside this audit priority even when they have read-only sibling endpoints.
+
+### Next exact target
+
+Only one next target is selected:
+
+```text
+GET /api_news_detail_kdeks/:id
+```
+
+Locked Old-BE route:
+
+```text
+GET /api_news_detail_kdeks/:id → news_details_kdeks
+```
+
+Locked handler contract:
+
+```sql
+SELECT * FROM news where id = $1 AND web_identity = 'kdeks' 
+```
+
+- path `id` is bound to `$1`;
+- matching rows → raw rows array, HTTP 200;
+- no row → HTTP 200 `{ "success": false }`;
+- no `ORDER BY`, `LIMIT`, `OFFSET` or pagination;
+- no cookie/auth branch;
+- no multipart, filesystem, public upload URL generation or external upstream dependency;
+- current New-ME still serves it through `handlers/news.cjs` / generic fallback;
+- existing native KDEKS profile handler does not cover KDEKS News routes.
+
+This target is **not implemented in the Video detail task**.
 
 ## Upload boundary
 
@@ -416,64 +531,20 @@ Do not raise 🟡 to ✅ without real verification of the applicable behavior, i
 
 The missing real `package.json` / lockfile remains a dependency reproducibility blocker. Do not create guessed manifests.
 
-## Next target audit — Video detail read
-
-Exactly one next DB-only candidate has been audited; it is **not implemented in this task**.
-
-### Next exact target
-
-```text
-GET /videodetail/:id
-```
-
-Locked Old-BE route:
-
-```text
-GET /videodetail/:id → videodetail
-```
-
-Old-BE handler behavior:
-
-```sql
-SELECT * FROM  news_videos where id=$1
-```
-
-with path `id` bound as `[id_vid]`.
-
-Observable response contract:
-
-- matching row(s) → raw rows array, HTTP 200;
-- no row → HTTP 200 `{ "success": false }`;
-- no `ORDER BY`, `LIMIT`, `OFFSET` or pagination;
-- no cookie/auth logic in the API handler;
-- no multipart, filesystem write/delete or public upload URL generation in this read handler.
-
-New-ME still exposes `videodetail` from `src/server/repositories/handlers/news.cjs` through `legacyHandlers`; there is no dedicated Video detail controller/service/repository compatibility method yet. Existing `getLegacyPostTypeRows("videos")` is a list contract and must not be reused for detail filtering in memory.
-
-Sibling Video mutations remain outside this target:
-
-- `POST /insertvideo`;
-- `POST /updatevideo`;
-- `GET /deletevideo/:id`.
-
-The Video mutations are DB-backed rather than multipart in the locked Old-BE source, but they are explicitly outside the current task and require their own later audit/slice decision.
-
-Therefore the next exact target, if continued, is **only `GET /videodetail/:id`**.
-
 ## Automated compatibility gate
 
 `.github/workflows/compatibility-baseline.yml` validates:
 
 - `node --check` for registered migrated source;
-- all registered Node compatibility/regression tests, including News Category, News read-filter, News post-type and Photo detail;
+- all registered Node compatibility/regression tests, including News Category, News read-filter, News post-type, Photo detail and Video detail;
 - locked Old-BE route comparison;
 - CMS role-policy comparison.
 
 Latest substantive result:
 
 ```text
-Run #177 — SUCCESS
-Commit: 93153934b6261ea739d5f1a9b6cac8cd8a08e4b1
+Run #185 — SUCCESS
+Commit: e0cc06dabefaa06bf21d4fbc3417641a4ee6f872
 ```
 
 This remains source/static/automated parity only. It does not replace real DB/browser verification.
