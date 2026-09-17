@@ -39,6 +39,7 @@ jobs:
           node --check src/server/controllers/legacy-abouts-read.controller.js
           node --check src/server/controllers/legacy-area-reference.controller.js
           node --check src/server/controllers/legacy-gender-reference.controller.js
+          node --check src/server/controllers/legacy-hotissue-category.controller.js
           node --check src/server/controllers/legacy-institutions-read.controller.js
           node --check src/server/controllers/legacy-kbli-reference.controller.js
           node --check src/server/controllers/legacy-kdeks-profile-read.controller.js
@@ -64,6 +65,8 @@ jobs:
           node --check src/server/services/menu-settings.service.js
           node --check src/server/repositories/roles-reference.repository.js
           node --check src/server/services/roles-reference.service.js
+          node --check src/server/repositories/hotissue.repository.js
+          node --check src/server/services/hotissue.service.js
           node --check src/server/repositories/data-menu.repository.js
           node --check src/server/services/data-menu.service.js
           node --check src/server/controllers/legacy-data-menu.controller.js
@@ -91,6 +94,7 @@ jobs:
           tests/legacy-abouts-read-contract.test.mjs
           tests/legacy-area-reference-contract.test.mjs
           tests/legacy-gender-reference-contract.test.mjs
+          tests/legacy-hotissue-category-contract.test.mjs
           tests/legacy-institutions-read-contract.test.mjs
           tests/legacy-kbli-reference-contract.test.mjs
           tests/legacy-kdeks-profile-read-contract.test.mjs
