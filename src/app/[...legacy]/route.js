@@ -1,6 +1,7 @@
 import { handleLegacyAuth } from "@/server/controllers/legacy-auth.controller";
 import { handleLegacyAgenda } from "@/server/controllers/legacy-agenda.controller";
 import { handleLegacyDataMenu } from "@/server/controllers/legacy-data-menu.controller";
+import { handleLegacyProvince } from "@/server/controllers/legacy-province.controller";
 import { handleLegacyApi } from "@/server/legacy-handler-adapter";
 
 export const runtime = "nodejs";
@@ -15,6 +16,9 @@ async function dispatch(request) {
 
   const dataMenuResponse = await handleLegacyDataMenu(request);
   if (dataMenuResponse) return dataMenuResponse;
+
+  const provinceResponse = await handleLegacyProvince(request);
+  if (provinceResponse) return provinceResponse;
 
   const response = await handleLegacyApi(request);
   return response || Response.json({ message: "Route API tidak ditemukan." }, { status: 404 });
