@@ -16,6 +16,14 @@ export const aboutsRepository = {
   async getKdeksHistory() {
     return (await db.query("SELECT * FROM abouts WHERE web_identity = 'kdeks' AND tag = 'history'")).rows;
   },
+  async getKdeksProvinceProfile(idProvince) {
+    return (
+      await db.query(
+        "SELECT * FROM kdeks where id_province = $1 AND web_identity = 'kdeks'",
+        [idProvince],
+      )
+    ).rows[0] ?? null;
+  },
   async getAboutById(id) {
     return (await db.query("SELECT * FROM abouts WHERE id = $1", [id])).rows;
   },
