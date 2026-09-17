@@ -1,5 +1,10 @@
 import { db } from "@/lib/db";
 
+const LEGACY_POST_TYPE_QUERIES = Object.freeze({
+  photos: "SELECT * FROM news_photos",
+  videos: "SELECT * FROM news_videos",
+});
+
 export const newsRepository = {
   async list(role_id_users) {
     if (role_id_users == '6') {
@@ -193,5 +198,14 @@ export const newsRepository = {
         '%' + date + '%',
       ])
     ).rows;
+  },
+
+  // Legacy /posts/type/:name compatibility.
+  // User input selects one of these complete fixed query strings and is never
+  // concatenated into an SQL identifier.
+  async getLegacyPostTypeRows(name) {
+    const query = LEGACY_POST_TYPE_QUERIES[name];
+    if (!query) return null;
+    return (await db.query(query)).rows;
   }
 };
