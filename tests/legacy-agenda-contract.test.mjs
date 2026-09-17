@@ -47,8 +47,8 @@ test("legacy Agenda controller owns all Old-BE Agenda routes and redirects mutat
   for (const pathname of ["/agenda", "/agenda_graph", "/search_agenda", "/insertagenda", "/updateagenda"]) {
     assert.ok(controllerSource.includes(pathname), `missing legacy Agenda path ${pathname}`);
   }
-  assert.match(controllerSource, /DETAIL_RE = \/\^\\\/agendadetails\\\/\(\[\^\/\]\+\)\$\//);
-  assert.match(controllerSource, /DELETE_RE = \/\^\\\/deleteagenda\\\/\(\[\^\/\]\+\)\$\//);
+  assert.ok(controllerSource.includes('const DETAIL_RE = /^\\/agendadetails\\/([^/]+)$/;'));
+  assert.ok(controllerSource.includes('const DELETE_RE = /^\\/deleteagenda\\/([^/]+)$/;'));
   assert.match(controllerSource, /legacyRedirect\(request, "\/a"\)/);
   assert.match(controllerSource, /rows\.length \? rows : \{ success: false \}/);
 });
