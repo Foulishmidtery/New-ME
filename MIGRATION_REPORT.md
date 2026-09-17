@@ -2,111 +2,258 @@
 
 Tanggal verifikasi: 2026-09-17
 
-## Ringkasan
+Compatibility baseline: `Foulishmidtery/Old-BE@0984f0182738303627dab16fbec60c948e926e01`
 
-- Seluruh 149 file HTML pada `legacy/views` telah dipetakan ke halaman App Router/JSX. `legacy/views/home.html` direpresentasikan oleh halaman `/dashboard` yang sudah ada; 148 wrapper JSX tambahan dibuat untuk view lainnya.
-- Seluruh halaman CMS menggunakan layout reusable `CmsShell` dengan topbar, sidebar, navigasi, dan area konten.
-- Komponen reusable ditambahkan untuk form, tabel/list, tombol aksi, serta search/pagination dasar.
-- Manifest kompatibilitas API sekarang statis: 276 route lama / 273 handler unik. Runtime tidak membaca atau mem-parsing `legacy/app.js`.
-- Folder/kode lama tidak dihapus.
-- `public` tidak terdapat pada ZIP sumber. Tidak ada file `public` yang dibuat atau dimodifikasi selama migrasi/verifikasi; runtime upload tetap menargetkan `public/uploads`.
+Laporan ini membedakan **source/CI parity** dari **runtime DB/browser parity**. Status detail per domain tersedia di `MIGRATION_PROGRESS.md`.
 
-## Struktur halaman JSX
+## Ringkasan terkini
 
-Kelompok route yang telah dibuat meliputi:
+- 149 legacy HTML view tetap telah dipetakan ke App Router/JSX; pemetaan view **tidak dianggap sebagai bukti behavior parity**.
+- Manifest route legacy tetap dipertahankan dan dibandingkan otomatis dengan Old-BE yang dikunci.
+- Compatibility migration sudah bergerak dari satu contoh Data Menu menjadi beberapa native compatibility controller/service/repository.
+- CMS per-page role authorization sekarang diambil dari policy aktual Old-BE, bukan satu guard generik untuk seluruh `/cms`.
+- Source/contract migration sudah tersedia untuk Auth, storage alias, Data Menu, Agenda, Province, Tagging, Zona KHAS, Contacts/Questbook, Maps, Social Media/Post Social Media, Scopes, beberapa Profile/reference read, Web Profile, dan Menu/Submenu settings.
+- `legacy-handler-adapter.js` tetap aktif sebagai fallback untuk route/domain yang belum dinyatakan parity.
+- Upload-heavy domain belum boleh dianggap selesai; setiap route upload harus diaudit secara individual sebelum dipindahkan dari fallback.
+- Full reproducible application build masih **blocked** karena `package.json` / lockfile asli belum tracked pada snapshot repository. Dependency tidak direkonstruksi dengan menebak versi.
 
-- `/news`, `/news/create`, `/news/[id]/edit`, dan `/news/categories/...`
-- `/agenda`, `/agenda/create`, `/agenda/[id]/edit`
-- `/users`, `/users/create`, `/users/[id]/edit`, serta new-user/approve/rejected/change-password/whitelist
-- `/profile/...` untuk contacts, ekonomi-syariah, institutions, maps, social-posts, scope, social-media, tentang-kami
-- `/banners`, `/banners/login`, `/banners/welcome`
-- `/kdeks/...` untuk master, provinces, pejabat, anggota, sub-anggota
-- `/struktur/...` untuk pejabat, anggota, sub-anggota, dan logo struktur
-- `/data/...` untuk menu, submenu, dashboard, datasets, sliders
-- `/pengaturan/...` untuk menu, sub-menu, serta identitas-web (color/header/logo/title)
-- `/files` dan `/files/categories`; backup view lama dipisahkan di `/files/legacy-backup`
-- `/photos`, `/videos`, `/tagging`, `/opini`, `/zona-khas`, `/directorates`, `/divisions`, `/hot-issues/...`
-- `/login` dan `/register`
+## Automated compatibility baseline
 
-Metadata field, tabel, dan referensi endpoint dari HTML lama disimpan statis di `src/config/legacy-pages.js`, sehingga halaman baru tidak membaca HTML legacy saat runtime.
+`.github/workflows/compatibility-baseline.yml` sekarang menjalankan:
 
-## API compatibility
+1. `node --check` terhadap source migrasi yang terdaftar;
+2. Node contract/regression tests;
+3. `scripts/compare-old-be-routes.mjs` terhadap checkout Old-BE commit terkunci;
+4. `scripts/compare-old-be-role-policies.mjs` untuk membandingkan page authorization New-ME dengan `Old-BE/app.js`.
 
-`src/server/legacy-route-manifest.js` berisi manifest statis 276 route. Perbandingan statis dengan deklarasi `legacy/app.js` menunjukkan seluruh 273 nama handler unik yang dirujuk manifest tersedia pada handler domain.
+Latest verified result:
 
-Representative route yang diverifikasi keberadaannya pada manifest:
+- **GitHub Actions run #75**
+- commit `8ff3e2717cf76d907e5cf40ef819c923ae958d3f`
+- conclusion: **SUCCESS**
 
-- Login: `POST /do_login`, `POST /act_login`
-- News: `POST /insertnews`, `POST /updatenews`, `GET /newsdetail/:id`, `GET /deletenews/:id/:foto`
-- Users: `GET /users`, `GET /users_detail/:id`, `POST /insertusers`, `POST /updateusers`
-- Agenda: `GET /agenda`, `POST /insertagenda`, `GET /agendadetails/:id`, `POST /updateagenda`, `GET /deleteagenda/:id`
-- Data Menu legacy: `GET /data_menu`, `GET /detail_data_menus/:id`, `POST /insert_data_menu`, `POST /update_data_menu`, `GET /delete_data_menu/:id`
-- Files: `GET /files`, `POST /insertfiles`, `GET /filesdetails/:id`, `GET /deletefilesupload/:id/:file`
-- KDEKS representative: `GET /api_kdeks`, `POST /insertkdeks`, `POST /updatekdeks`
-- Struktur representative: `GET /structure`
-- Profile representative: `GET /institutions`
-- Hot Issue representative: `GET /hotissue`
-- Banner representative: `GET /slideshow`
-- Directorate representative: `GET /directorat`
-- Zona KHAS representative: `GET /zona_khas`
+Hasil ini membuktikan source/static/automated contract pada scope yang terdaftar. Hasil tersebut **bukan** bukti live PostgreSQL, cookie browser, frontend production, upload real, atau upstream integration parity.
 
-Catatan: verifikasi di atas adalah verifikasi struktur/manifest, bukan request HTTP live ke database, karena dependency aplikasi tidak dapat diinstal pada sandbox verifikasi.
+## CMS per-page authorization
 
-## Repository / service / route
+Old-BE tidak menggunakan satu role rule untuk semua halaman. Setiap page route membaca `req.cookies.roles_id` dengan kombinasi role yang berbeda dan, jika ditolak, melakukan `res.redirect('/')`.
 
-Pola bersih repository-service-route diterapkan penuh pada Data Menu:
+New-ME sekarang memakai:
 
-- `src/server/repositories/data-menu.repository.js` — SQL/database saja.
-- `src/server/services/data-menu.service.js` — validasi dan logika bisnis.
-- `src/app/api/data-menus/route.js` dan `src/app/api/data-menus/[id]/route.js` — HTTP Next.js.
+- `src/config/role-policies.js`
+- `src/server/auth/session.js`
+- `src/server/auth/authorization.js`
+- `src/middleware.js`
+- `tests/cms-authorization.test.mjs`
+- `scripts/compare-old-be-role-policies.mjs`
 
-Handler domain lama tetap dipertahankan aktif melalui compatibility adapter agar URL/method/request/response frontend lama tidak terputus. Karena handler lama masih berisi campuran SQL dan `req/res`, migrasi repository/service untuk domain News, Users, Agenda, Files, KDEKS, dsb. masih harus dilanjutkan satu per satu sebelum compatibility layer dapat dilepas. Tidak ada handler lama yang dihapus.
+Behavior yang dipertahankan:
 
-## Upload
+- cookie page guard: `roles_id`;
+- missing/invalid role ditolak pada protected page;
+- role matrix berbeda per halaman;
+- unauthorized response menggunakan **302** ke `/`;
+- halaman Old-BE yang tidak mempunyai role guard tidak otomatis diberi requirement `islogin` baru;
+- dynamic New-ME page route dipetakan kembali ke legacy page policy yang tepat.
 
-`src/server/upload-policy.js` dan adapter kompatibilitas sekarang melakukan:
+Policy checker membaca source Old-BE yang dikunci dan membuat CI gagal bila ada policy yang hilang, ditambah tanpa baseline, atau role-nya melebar/menyempit.
 
-- batas ukuran default 50 MB (`MAX_UPLOAD_BYTES`);
-- whitelist ekstensi dan pemeriksaan MIME;
-- sanitasi field/filename dan nama file acak;
-- validasi folder relatif dan proteksi path traversal;
-- penyimpanan hanya di `<project>/public/uploads/<folder>`;
-- cleanup file yang baru disimpan bila parsing/upload atau handler gagal / menghasilkan status >= 400;
-- dukungan field multipart tunggal maupun multi-file sesuai adapter lama.
+## Native compatibility architecture
 
-Path penghapusan file pada handler lama tidak lagi hardcoded ke `/var/www/html/...`; default memakai `<project>/public/uploads` dan dapat dioverride dengan `PUBLIC_UPLOADS_DIR`.
+Target flow yang digunakan pada domain yang sudah diekstrak:
 
-## Keamanan dan konfigurasi
+```text
+legacy route
+   ↓
+thin compatibility controller
+   ↓
+domain service
+   ↓
+domain repository
+   ↓
+PostgreSQL
+```
 
-- Daftar origin lama dan `CORS_ORIGINS` pada `src/middleware.js` dipertahankan.
-- Preflight `OPTIONS` tetap dibalas 204 oleh middleware.
-- CSP tetap longgar (`frame-ancestors *`) sehingga tidak memblokir iframe/aset legacy.
-- Adapter cookie sekarang meneruskan `domain`, `secure`, `httpOnly`, `sameSite`, `expires`, dan clear-cookie options yang sebelumnya hilang.
-- Password MySQL hardcoded di `src/server/legacy-db/config.js` dihapus dari source dan diganti `LEGACY_MYSQL_*` environment variables.
-- `.env.example` diperbarui tanpa kredensial asli.
-- Proxy Tax Holiday, Tax Allowance, Tax Super Deduction, Tax Bea Masuk, KHAS, dan SPES tetap ada di `next.config.js`.
+Controller native dijalankan sebelum `legacy-handler-adapter.js`. Fallback hanya menangani route yang belum dipindahkan.
 
-## Hasil verifikasi
+Domain/slice yang saat ini memiliki native compatibility path mencakup:
 
-Berhasil:
+- Auth;
+- About / Ekonomi Syariah read-only;
+- Agenda;
+- Contacts / Questbook;
+- Data Menu;
+- KDEKS About/History/Maps reference reads;
+- Maps;
+- Menu / Submenu settings;
+- Province;
+- Scopes;
+- Social Media / Post Social Media;
+- Tagging;
+- Web Profile reads + DB-only settings mutations;
+- Zona KHAS.
 
-- `node --check` pada manifest, adapter, upload policy, repository/service Data Menu, middleware, dan `next.config.js`.
-- 149/149 legacy view memiliki definisi migrasi dan route JSX yang sesuai.
-- 276/276 route compatibility termanifestasi secara statis; seluruh 273 handler unik terpetakan ke export handler domain.
-- Tidak ada runtime parser/read terhadap `legacy/app.js`.
-- Tidak ada password literal hardcoded yang ditemukan lagi pada source `src` dengan scan pola sederhana.
-- Konfigurasi proxy Tax/KHAS/SPES terdeteksi tetap ada.
-- Tidak ada file lama yang dihapus.
+## Compatibility behavior yang sudah dikunci
 
-Tidak dapat diselesaikan di sandbox ini:
+### Auth
 
-- `npm ci` sudah dijalankan dua kali tetapi keduanya timeout sebelum dependency terpasang.
-- Akibat dependency Next.js tidak tersedia, `npm run build` berhenti dengan `next: not found`; ini bukan hasil kompilasi aplikasi.
-- Aplikasi tidak dapat dijalankan sehingga request HTTP live, koneksi database, login real, cookie browser, CRUD database, upload real, dan proxy upstream tidak dapat diuji end-to-end.
+- local login response tidak menambah internal `user` object;
+- host-only local cookie contract dipertahankan;
+- SSO cookie tetap domain `.kneks.go.id`, `Secure`, `SameSite=None`;
+- SSO expiry dikembalikan ke behavior Old-BE sekitar 24 hari;
+- SSO logout membersihkan cookie dengan domain scope yang sama.
 
-## Pekerjaan lanjutan sebelum compatibility layer dilepas
+### Storage aliases
 
-1. Jalankan `npm ci && npm run build` pada lingkungan dengan akses registry npm dan Node 20-22.
-2. Sediakan PostgreSQL/DB dev yang sesuai `.env`, kemudian jalankan `npm start` dan smoke-test endpoint representative di atas.
-3. Migrasikan handler domain yang masih aktif di `src/server/repositories/handlers` satu domain per tahap menjadi repository murni + service + route handler; pertahankan compatibility manifest sampai frontend tidak lagi memakai endpoint legacy.
-4. Setelah domain tertentu lulus test parity request/response/status/cookie/upload, baru pindahkan handler legacy domain tersebut menjadi arsip.
+Alias Old-BE berikut kembali tersedia pada source compatibility path:
+
+- `/storage/news`
+- `/storage/hot_issue`
+- `/storage/photo`
+- `/storage/structure`
+- `/storage/filesupload`
+
+Traversal diblok dan file serving mendukung HEAD/range behavior. Live file parity tetap perlu runtime environment.
+
+### Data Menu
+
+Legacy path mempertahankan:
+
+- `SELECT * FROM data_menu` tanpa menambah ordering;
+- tidak menambah required-field validation baru;
+- HTTP 200 + `{success:false}` untuk empty result;
+- redirect mutation ke `/menu_data`.
+
+Modern `/api/data-menus` tetap additive dan terpisah.
+
+### Agenda
+
+Legacy path mempertahankan:
+
+- `ORDER BY agenda_datetime DESC`;
+- search `LIKE` + historical search cap;
+- create/update datetime quirks;
+- update side effect pada `created_at`/`updated_at`;
+- historical `/agenda_graph` response mapping;
+- redirect `/a`.
+
+### Zona KHAS
+
+Legacy path mempertahankan:
+
+- province `ORDER BY id DESC`;
+- nested `zonakhas` per province;
+- inauguration/inaugurated NULL semantics berdasarkan status;
+- legacy empty result behavior;
+- redirect `/zk`.
+
+### Scopes
+
+Legacy Scope path mempertahankan historical update behavior Old-BE, termasuk kondisi lama yang secara praktis selalu menulis `icon` dan `image` dari field `images`. Modern path tidak dipaksa mewarisi quirk tersebut.
+
+### About / Ekonomi Syariah
+
+Native read-only endpoints:
+
+- `GET /es_abouts`
+- `GET /es_detailabouts/:id`
+- `GET /abouts`
+- `GET /detailabouts/:id`
+
+Upload-capable update routes sengaja tetap fallback.
+
+### KDEKS profile/reference reads
+
+Native read-only endpoints:
+
+- `GET /api_kdeks_list`
+- `GET /api_about_kdeks`
+- `GET /api_history_kdeks`
+- `GET /api_maps_kdeks`
+
+Static About/History endpoints mempertahankan array response, termasuk empty array. Maps mempertahankan success/data shape dan historical 500 failure response.
+
+Province-specific KDEKS About/History route belum digabung ke slice ini karena response shaping-nya berbeda dan harus diuji terpisah.
+
+### Web Profile
+
+Native reads:
+
+- `GET /api_web_profile`
+- `GET /api_detail_webprofile/:id`
+
+Native DB-only mutations:
+
+- `POST /updatewebtitle` → `/titleweb`
+- `POST /updateweblogo` → `/logo`
+- `POST /updatewebheader` → `/header`
+- `POST /updatewebcolor` → `/color`
+
+SQL field/request body/302 redirect semantics mengikuti Old-BE dan tidak menambah `RETURNING` atau validation baru.
+
+### Menu / Submenu settings
+
+Native routes:
+
+- `GET /api_menu`
+- `GET /api_menu_detail/:id`
+- `GET /api_submenu`
+- `GET /api_submenu_detail/:id`
+- `POST /insertmenu`
+- `POST /updatemenu`
+- `POST /insertsubmenu`
+- `POST /updatesubmenu`
+
+Old-BE `menu_id.split('-')` behavior dipertahankan tanpa coercion baru. Mutations tetap redirect ke `/menu` atau `/submenu`.
+
+## Upload parity boundary
+
+Existing transitional upload helpers **tidak boleh dianggap satu global contract untuk seluruh endpoint legacy**.
+
+Sebelum suatu upload-heavy domain dipindahkan dari fallback, wajib dibuat inventory per route:
+
+```text
+Route
+HTTP method
+multipart field name
+single/multiple
+accepted file behavior
+filter/MIME behavior
+destination folder
+filename behavior
+DB value/public URL
+replace semantics
+delete semantics
+no-file behavior
+error behavior
+redirect
+```
+
+Domain yang termasuk upload-heavy antara lain News, Files, Photo, Structure, KDEKS, Directorate, Banners, Institutions, Opini dan slider/media lain.
+
+Shared helper hanya boleh dibuat setelah inventory domain menunjukkan bahwa helper tersebut dapat mempertahankan variasi contract masing-masing route.
+
+## Runtime verification yang belum tersedia
+
+Karena dependency manifest asli belum tracked dan dev runtime/database belum tersedia pada verification environment, hal berikut belum dapat dinyatakan parity penuh:
+
+- clean `npm ci` + production build dari repository saja;
+- live PostgreSQL CRUD side effects;
+- real login/SSO cookie behavior di browser;
+- frontend production smoke test;
+- real multipart upload/replace/delete;
+- Tax/KHAS/SPES upstream integration behavior.
+
+Untuk domain yang source/CI sudah hijau, status runtime tetap **🟡 perlu verifikasi**.
+
+## Next safe migration target
+
+Urutan berikutnya tetap mengikuti dependency dan risiko:
+
+1. audit + migrate **province-specific KDEKS profile/reference reads** (`/api_history_province_kdeks/:id`, `/api_about_province_kdeks/:id`) sebagai slice terpisah;
+2. lanjutkan non-upload/reference domain lain satu per satu dengan gate yang sama;
+3. tunda Users/security-sensitive mutations sampai reference/content reads stabil;
+4. setelah non-upload stabil, mulai upload inventory per domain; jangan mengaktifkan global upload behavior sebagai pengganti contract route-specific;
+5. lakukan runtime golden-master test saat manifest dependency asli, DB dev dan browser environment tersedia.
+
+Tidak ada upload-heavy fallback yang dilepas pada tahap ini.
