@@ -49,6 +49,7 @@ jobs:
           node --check src/server/controllers/legacy-web-profile-settings.controller.js
           node --check src/server/controllers/legacy-menu-settings.controller.js
           node --check src/server/controllers/legacy-negara-reference.controller.js
+          node --check src/server/controllers/legacy-news-category.controller.js
           node --check src/server/controllers/legacy-pembuka-reference.controller.js
           node --check src/server/controllers/legacy-peserta-reference.controller.js
           node --check src/server/controllers/legacy-prioritas-reference.controller.js
@@ -71,6 +72,8 @@ jobs:
           node --check src/server/repositories/directorat.repository.js
           node --check src/server/services/directorat.service.js
           node --check src/server/controllers/legacy-directorate-division.controller.js
+          node --check src/server/repositories/news.repository.js
+          node --check src/server/services/news.service.js
           node --check src/server/repositories/data-menu.repository.js
           node --check src/server/services/data-menu.service.js
           node --check src/server/controllers/legacy-data-menu.controller.js
@@ -109,6 +112,7 @@ jobs:
           tests/legacy-web-profile-settings-contract.test.mjs
           tests/legacy-menu-settings-contract.test.mjs
           tests/legacy-negara-reference-contract.test.mjs
+          tests/legacy-news-category-contract.test.mjs
           tests/legacy-pembuka-reference-contract.test.mjs
           tests/legacy-peserta-reference-contract.test.mjs
           tests/legacy-prioritas-reference-contract.test.mjs
