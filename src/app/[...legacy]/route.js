@@ -4,6 +4,7 @@ import { handleLegacyContacts } from "@/server/controllers/legacy-contacts.contr
 import { handleLegacyDataMenu } from "@/server/controllers/legacy-data-menu.controller";
 import { handleLegacyMaps } from "@/server/controllers/legacy-maps.controller";
 import { handleLegacyProvince } from "@/server/controllers/legacy-province.controller";
+import { handleLegacySocialMedia } from "@/server/controllers/legacy-social-media.controller";
 import { handleLegacyTagging } from "@/server/controllers/legacy-tagging.controller";
 import { handleLegacyZonaKhas } from "@/server/controllers/legacy-zona-khas.controller";
 import { handleLegacyApi } from "@/server/legacy-handler-adapter";
@@ -29,6 +30,9 @@ async function dispatch(request) {
 
   const provinceResponse = await handleLegacyProvince(request);
   if (provinceResponse) return provinceResponse;
+
+  const socialMediaResponse = await handleLegacySocialMedia(request);
+  if (socialMediaResponse) return socialMediaResponse;
 
   const taggingResponse = await handleLegacyTagging(request);
   if (taggingResponse) return taggingResponse;
