@@ -1,4 +1,5 @@
 import { handleLegacyAuth } from "@/server/controllers/legacy-auth.controller";
+import { handleLegacyAboutsRead } from "@/server/controllers/legacy-abouts-read.controller";
 import { handleLegacyAgenda } from "@/server/controllers/legacy-agenda.controller";
 import { handleLegacyContacts } from "@/server/controllers/legacy-contacts.controller";
 import { handleLegacyDataMenu } from "@/server/controllers/legacy-data-menu.controller";
@@ -16,6 +17,9 @@ export const dynamic = "force-dynamic";
 async function dispatch(request) {
   const authResponse = await handleLegacyAuth(request);
   if (authResponse) return authResponse;
+
+  const aboutsReadResponse = await handleLegacyAboutsRead(request);
+  if (aboutsReadResponse) return aboutsReadResponse;
 
   const agendaResponse = await handleLegacyAgenda(request);
   if (agendaResponse) return agendaResponse;
