@@ -10,6 +10,7 @@ import { handleLegacyScopes } from "@/server/controllers/legacy-scopes.controlle
 import { handleLegacySocialMedia } from "@/server/controllers/legacy-social-media.controller";
 import { handleLegacyTagging } from "@/server/controllers/legacy-tagging.controller";
 import { handleLegacyWebProfileRead } from "@/server/controllers/legacy-web-profile-read.controller";
+import { handleLegacyWebProfileSettings } from "@/server/controllers/legacy-web-profile-settings.controller";
 import { handleLegacyZonaKhas } from "@/server/controllers/legacy-zona-khas.controller";
 import { handleLegacyApi } from "@/server/legacy-handler-adapter";
 
@@ -52,6 +53,9 @@ async function dispatch(request) {
 
   const webProfileReadResponse = await handleLegacyWebProfileRead(request);
   if (webProfileReadResponse) return webProfileReadResponse;
+
+  const webProfileSettingsResponse = await handleLegacyWebProfileSettings(request);
+  if (webProfileSettingsResponse) return webProfileSettingsResponse;
 
   const zonaKhasResponse = await handleLegacyZonaKhas(request);
   if (zonaKhasResponse) return zonaKhasResponse;
